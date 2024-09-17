@@ -2,71 +2,65 @@
 # coding: utf-8
 
 import os
-import requests
+import asyncio
+import aiohttp
 import pandas as pd
 from datetime import datetime
+import logging
+from tqdm import tqdm
 import time
 
-def extract_result_from_pgn(pgn):
-    """
-    Extract the game result from a PGN string.
+# Set up logging
+logging.basicConfig(filename="chess_data_fetch_errors.log", level=logging.ERROR)
 
-    Args:
-        pgn (str): The PGN string of a chess game.
+class RateLimiter:
+    def __init__(self, calls_per_minute):
+        self.calls_per_minute = calls_per_minute
+        self.calls_made = 0
+        self.start_time = time.time()
 
-    Returns:
-        str: The result of the game ("1-0", "0-1", "1/2-1/2", or "Unknown").
-    """
-    if pgn:
-        if "1-0" in pgn:
-            return "1-0"
-        elif "0-1" in pgn:
-            return "0-1"
-        elif "1/2-1/2" in pgn:
-            return "1/2-1/2"
-    return "Unknown"
+    async def wait(self):
+        self.calls_made += 1
+        if self.calls_made >= self.calls_per_minute:
+            elapsed = time.time() - self.start_time
+            if elapsed < 60:
+                await asyncio.sleep(60 - elapsed)
+            self.calls_made = 0
+            self.start_time = time.time()
 
-def fetch_chess_games(usernames, year):
-    """
-    Fetch chess games data for given usernames and year from chess.com API.
+rate_limiter = RateLimiter(60)  # 60 calls per minute
 
-    Args:
-        usernames (list): List of chess.com usernames to fetch data for.
-        year (int): The year for which to fetch game data.
+async def fetch_month_data(session, url, headers):
+    await rate_limiter.wait()
+    async with session.get(url, headers=headers) as response:
+        if response.status == 200:
+            return await response.json()
+        else:
+            return None
 
-    Returns:
-        pandas.DataFrame: A DataFrame containing the fetched chess games data.
-    """
-    base_url = f"https://api.chess.com/pub/player"
+async def fetch_user_data(username, year, start_month, end_month, headers):
+    base_url = f"https://api.chess.com/pub/player/{username}/games"
+    async with aiohttp.ClientSession() as session:
+        tasks = []
+        for month in range(start_month, end_month + 1):
+            url = f"{base_url}/{year}/{month:02d}"
+            tasks.append(fetch_month_data(session, url, headers))
+        return await asyncio.gather(*tasks)
+
+def process_user_data(username, year, start_month, end_month):
     headers = {
         "User-Agent": os.environ.get("CHESS_COM_USERNAME", "default_username")
     }
     
-    games_data = []
+    loop = asyncio.get_event_loop()
+    month_data = loop.run_until_complete(fetch_user_data(username, year, start_month, end_month, headers))
     
-    for user in usernames:
-        for month in range(1, 13):
-            month_str = f"{year}/{month:02d}"
-            url = f"{base_url}/{user}/games/{month_str}"
-
-            response = requests.get(url, headers=headers)
-            if response.status_code == 403:
-                print(f"Access forbidden for URL: {url}")
-                continue
-            elif response.status_code == 404:
-                print(f"No data for URL: {url}")
-                continue
-            elif response.status_code != 200:
-                print(f"Failed to fetch data for URL: {url} with status code {response.status_code}")
-                continue
-
-            games = response.json().get("games", [])
-
-            for game in games:
-                pgn = game.get("pgn")
+    games_data = []
+    for month, data in enumerate(month_data, start=start_month):
+        if data and 'games' in data:
+            for game in data['games']:
                 game_info = {
                     "url": game.get("url"),
-                    "pgn": pgn,
                     "time_control": game.get("time_control"),
                     "end_time": datetime.fromtimestamp(game.get("end_time")).strftime("%Y-%m-%d %H:%M:%S") if game.get("end_time") else None,
                     "rated": game.get("rated"),
@@ -74,25 +68,40 @@ def fetch_chess_games(usernames, year):
                     "rules": game.get("rules"),
                     "white_username": game["white"].get("username"),
                     "white_rating": game["white"].get("rating"),
+                    "white_result": game["white"].get("result"),
                     "black_username": game["black"].get("username"),
                     "black_rating": game["black"].get("rating"),
-                    "result": extract_result_from_pgn(pgn)
+                    "black_result": game["black"].get("result"),
+                    "eco": game.get("eco"),
+                    "fen": game.get("fen"),
+                    "white_accuracy": game.get("accuracies", {}).get("white"),
+                    "black_accuracy": game.get("accuracies", {}).get("black"),
                 }
                 games_data.append(game_info)
-
-            # Adding a delay to respect rate limits
-            time.sleep(1)
+        else:
+            logging.error(f"Error fetching data for {username} in {year}/{month:02d}")
     
-    return pd.DataFrame(games_data)
+    return games_data
+
+def fetch_chess_games(usernames, year, start_month=1, end_month=12):
+    all_games_data = []
+    
+    for username in tqdm(usernames, desc="Fetching user data"):
+        user_games_data = process_user_data(username, year, start_month, end_month)
+        all_games_data.extend(user_games_data)
+    
+    return pd.DataFrame(all_games_data)
 
 def main():
     usernames = ["hikaru", "magnuscarlsen", "lachesisQ", "chesswarrior7197", "gukeshdommaraju", "gmwso", "lovevae", "fabianocaruana"]
     year = 2024
-    df = fetch_chess_games(usernames, year)
+    start_month = 1
+    end_month = 12
+    df = fetch_chess_games(usernames, year, start_month, end_month)
 
     # Save DataFrame as CSV in data/raw folder
     csv_file = "./data/raw/chess_games_raw.csv"
-    df.to_csv(csv_file, index=True)
+    df.to_csv(csv_file, index=False)
     print(f"Raw data saved to {csv_file}")
 
 if __name__ == "__main__":
