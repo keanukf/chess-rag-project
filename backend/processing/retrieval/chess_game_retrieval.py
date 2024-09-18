@@ -1,57 +1,93 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM
-import torch
+from typing import List, Tuple
 import pandas as pd
-import re
+import torch
+from transformers import pipeline
+import warnings
+import os
 
-def extract_relevant_info(user_request: str) -> dict:
-    # Load model and tokenizer
-    model_name = "meta-llama/Meta-Llama-3.1-8B"
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16, device_map="auto")
+# Suppress specific warnings
+warnings.filterwarnings("ignore", category=FutureWarning, module='transformers.tokenization_utils_base')
 
-    # Prompt engineering for Llama
-    prompt = f"""
-    Given the following user request for chess games:
-    "{user_request}"
-    
-    Extract and return only the relevant information that matches any of these columns:
-    time_control, end_time, time_class, rules, white_username, white_rating, black_username, black_rating, result
-
-    Format the output as a Python dictionary.
+def load_chess_data() -> pd.DataFrame:
     """
+    Load chess game data from a CSV file into a pandas DataFrame.
 
-    # Tokenize and generate
-    inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-    outputs = model.generate(**inputs, max_new_tokens=200, temperature=0.7)
+    Returns:
+        pd.DataFrame: DataFrame containing chess game data.
+    """
+    csv_path = os.path.join("data", "raw", "chess_games_raw.csv")
     
-    # Decode the generated text
-    generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    # Read the CSV file
+    df = pd.read_csv(csv_path)
     
-    # Extract the dictionary from the generated text
-    dict_match = re.search(r'\{.*\}', generated_text, re.DOTALL)
-    if dict_match:
-        extracted_dict = eval(dict_match.group())
-        return extracted_dict
-    else:
-        return {}
+    # Convert all columns to string type
+    df = df.astype(str)
+    
+    # Clean the data
+    df = df.fillna('')  # Replace NaN with empty string
+    df = df.map(lambda x: x.strip() if isinstance(x, str) else x)  # Strip whitespace
+    
+    return df
+
+def initialize_qa_pipeline():
+    """
+    Initialize the table question-answering pipeline.
+
+    Returns:
+        callable: The table question-answering pipeline function.
+    """
+    device = 0 if torch.cuda.is_available() else -1
+    return pipeline(
+        task="table-question-answering",
+        model="google/tapas-base-finetuned-wtq",
+        device=device,
+        tokenizer_kwargs={"clean_up_tokenization_spaces": False}
+    )
+
+def query_table(tqa: callable, question: str, df: pd.DataFrame) -> Tuple[str, List[Tuple[int, int]]]:
+    """
+    Query the table with a given question.
+
+    Args:
+        tqa (callable): The table question-answering pipeline function.
+        question (str): The question to ask about the table.
+        df (pd.DataFrame): The DataFrame containing the table data.
+
+    Returns:
+        Tuple[str, List[Tuple[int, int]]]: The answer and the coordinates of the cells used for the answer.
+    """
+    result = tqa(table=df, query=question)
+    return result['answer'], result['coordinates']
+
+def process_questions(tqa: callable, questions: List[str], df: pd.DataFrame):
+    """
+    Process a list of questions and print the results.
+
+    Args:
+        tqa (callable): The table question-answering pipeline function.
+        questions (List[str]): List of questions to process.
+        df (pd.DataFrame): The DataFrame containing the table data.
+    """
+    for question in questions:
+        print(f"\nQuestion: {question}")
+        answer, coordinates = query_table(tqa, question, df)
+        print(f"Answer: {answer}")
+        print(f"Coordinates: {coordinates}")
 
 def main():
-    # Load the CSV file
-    df = pd.read_csv("./data/raw/chess_games_raw.csv")
-    
-    user_request = input("Enter your chess game query: ")
-    extracted_info = extract_relevant_info(user_request)
-    print("Extracted information:")
-    print(extracted_info)
-    
-    # Use the extracted information to filter the DataFrame
-    query = " & ".join([f"{k} == '{v}'" for k, v in extracted_info.items() if k in df.columns])
-    if query:
-        filtered_df = df.query(query)
-        print("\nFiltered games:")
-        print(filtered_df)
-    else:
-        print("\nNo matching criteria found.")
+    df = load_chess_data()
+    tqa = initialize_qa_pipeline()
+
+    questions = [
+        "When was Hikaru's last loss?",
+        "How many games did Magnus win?",
+        "Who did Fabiano play against on July 30th?",
+    ]
+
+    process_questions(tqa, questions, df)
+
+    print("\nDataframe:")
+    print(df)
 
 if __name__ == "__main__":
     main()
