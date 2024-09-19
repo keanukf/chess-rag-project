@@ -1,0 +1,30 @@
+{
+  "columns": [
+    "time_control",
+    "end_time",
+    "rated",
+    "time_class",
+    "white_username",
+    "white_rating",
+    "white_result",
+    "black_username",
+    "black_rating",
+    "black_result",
+    "black_accuracy",
+    "white_accuracy"
+  ],
+  "dtypes": {
+    "time_control": "object",
+    "end_time": "datetime64[ns]",
+    "rated": "boolean",
+    "time_class": "object",
+    "white_username": "object",
+    "white_rating": "int32",
+    "white_result": "object",
+    "black_username": "object",
+    "black_rating": "int32",
+    "black_result": "object",
+    "black_accuracy": "float32",
+    "white_accuracy": "float32"
+  }
+}

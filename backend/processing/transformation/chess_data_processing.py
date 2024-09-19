@@ -1,30 +1,34 @@
 import pandas as pd
 import os
+from datetime import datetime
+
+def format_date(date_str):
+    try:
+        return datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")
+    except ValueError:
+        return date_str  # Return original if parsing fails
 
 # Define the paths
 input_csv_path = os.path.join("data", "raw", "chess_games_raw.csv")
-output_csv_path = os.path.join("data", "processed", "chess_games_small.csv")
+output_csv_path = os.path.join("data", "processed", "chess_games_simple.csv")
 
 # Load the CSV file
 df = pd.read_csv(input_csv_path)
 
-# Convert all columns to string type
-df = df.astype(str)
-
-# Select the most important columns
-important_columns = [
-    "time_control", "end_time", "rated", "time_class",
-    "white_username", "white_rating", "white_result",
-    "black_username", "black_rating", "black_result", 
-    "black_accuracy", "white_accuracy"
+# Select only the essential columns
+essential_columns = [
+    "end_time", "white_username", "black_username", "white_result"
 ]
 
 # Select only the important columns
-df = df[important_columns]
+df = df[essential_columns]
 
-# Clean the data
-df = df.fillna('')  # Replace NaN with empty string
-df = df.map(lambda x: x.strip() if isinstance(x, str) else x)  # Strip whitespace
+# Clean and format the data
+df['end_time'] = df['end_time'].apply(format_date)
+df['white_result'] = df['white_result'].map({'win': 'won', 'checkmated': 'lost', 'resigned': 'lost', 'timeout': 'lost', 'draw': 'draw'})
+
+# Rename columns for clarity
+df.columns = ['date', 'white_player', 'black_player', 'result']
 
 # Create the processed directory if it doesn't exist
 os.makedirs(os.path.dirname(output_csv_path), exist_ok=True)
