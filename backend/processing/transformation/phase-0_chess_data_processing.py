@@ -26,14 +26,14 @@ essential_columns = [
 df = df[essential_columns]
 
 # Clean and format the data
-df['date'], df['time'] = zip(*df['end_time'].apply(format_date_time))
-df['white_result'] = df['white_result'].map({'win': 'won', 'checkmated': 'lost', 'resigned': 'lost', 'timeout': 'lost', 'draw': 'draw'})
+df["date"], df["time"] = zip(*df["end_time"].apply(format_date_time))
+df["white_result"] = df["white_result"].map({"win": "won", "checkmated": "lost", "resigned": "lost", "timeout": "lost", "draw": "draw", "repetition": "draw", "agreed": "draw", "timevsinsufficient": "draw", "insufficient": "draw", "stalemate": "draw", "50move": "draw", "bughousepartnerlose": "lost", "abandoned": "lost"})
 
 # Rename columns for clarity
-df.columns = ['end_time', 'white_player', 'black_player', 'result', 'rated', 'time_class', 'date', 'time']
+df.columns = ["end_time", "white_player", "black_player", "result", "rated", "time_class", "date", "time"]
 
 # Reorder columns
-df = df[['date', 'time', 'white_player', 'black_player', 'result', 'rated', 'time_class']]
+df = df[["date", "time", "white_player", "black_player", "result", "rated", "time_class"]]
 
 # Create the processed directory if it doesn't exist
 os.makedirs(os.path.dirname(output_csv_path), exist_ok=True)
@@ -45,4 +45,3 @@ print(f"Processed data saved to: {output_csv_path}")
 print(f"Shape of the processed DataFrame: {df.shape}")
 print("\nFirst few rows of the processed data:")
 print(df.head())
-
