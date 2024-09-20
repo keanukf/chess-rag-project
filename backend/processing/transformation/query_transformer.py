@@ -17,23 +17,3 @@ def transform_query(user_query):
 
     # Return the transformed query
     return result[0]["generated_text"]
-
-def main():
-    test_queries = [
-        "When did Hikaru last win?",
-        "How many games did Magnus play?",
-        "Who's the best player?",
-        "What's the most common time control?",
-        "How often does white win?",
-        "Are there any unrated games?",
-        "Who plays the most?"
-    ]
-
-    for query in test_queries:
-        transformed = transform_query(query)
-        print(f"Original: {query}")
-        print(f"Transformed: {transformed}")
-        print("-" * 50)
-
-if __name__ == "__main__":
-    main()

@@ -3,6 +3,7 @@ import os
 from typing import Tuple, List
 from transformers import pipeline, AutoTokenizer
 import torch
+from processing.transformation.query_transformer import transform_query
 
 def load_filtered_chess_data() -> pd.DataFrame:
     """
@@ -41,14 +42,11 @@ def initialize_qa_pipeline():
     )
 
 def query_table(tqa: callable, question: str, df: pd.DataFrame) -> Tuple[str, List[Tuple[int, int]]]:
-    print("DataFrame shape:", df.shape)
-    print("DataFrame columns:", df.columns)
-    print("First few rows:")
-    print(df.head())
-    print("DataFrame dtypes:")
-    print(df.dtypes)
     
-    result = tqa(table=df, query=question)
+    transformed_question = transform_query(question)
+    print(f"Transformed question: {transformed_question}")
+    
+    result = tqa(table=df, query=transformed_question)
     return result["answer"], result["coordinates"]
 
 def process_questions(tqa: callable, df: pd.DataFrame):
@@ -56,7 +54,7 @@ def process_questions(tqa: callable, df: pd.DataFrame):
         question = input("Enter your question (or 'quit' to exit): ")
         if question.lower() == "quit":
             break
-        print(f"\nQuestion: {question}")
+        print(f"\nOriginal question: {question}")
         answer, coordinates = query_table(tqa, question, df)
         print(f"Answer: {answer}")
         print(f"Coordinates: {coordinates}")
