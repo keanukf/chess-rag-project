@@ -2,8 +2,11 @@ import pandas as pd
 import os
 from typing import Tuple, List
 from transformers import pipeline, AutoTokenizer
-import torch
-from processing.transformation.query_transformer import transform_query
+from query_transformer import transform_query
+import warnings
+
+# Suppress FutureWarnings
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 def load_filtered_chess_data() -> pd.DataFrame:
     """
@@ -27,11 +30,7 @@ def initialize_qa_pipeline():
     Initialize the table question-answering pipeline with CPU support.
     """
     device = -1  # Use CPU
-    print("Using CPU")
-
     model_name = "google/tapas-base-finetuned-wtq"
-    
-    # Initialize the tokenizer with the parameter set
     tokenizer = AutoTokenizer.from_pretrained(model_name, clean_up_tokenization_spaces=True)
 
     return pipeline(
@@ -47,7 +46,7 @@ def query_table(tqa: callable, question: str, df: pd.DataFrame) -> Tuple[str, Li
     print(f"Transformed question: {transformed_question}")
     
     result = tqa(table=df, query=transformed_question)
-    return result["answer"], result["coordinates"]
+    return result["answer"]
 
 def process_questions(tqa: callable, df: pd.DataFrame):
     while True:
@@ -55,9 +54,8 @@ def process_questions(tqa: callable, df: pd.DataFrame):
         if question.lower() == "quit":
             break
         print(f"\nOriginal question: {question}")
-        answer, coordinates = query_table(tqa, question, df)
+        answer = query_table(tqa, question, df)
         print(f"Answer: {answer}")
-        print(f"Coordinates: {coordinates}")
 
 def main():
     df = load_filtered_chess_data()
