@@ -2,16 +2,15 @@ import pandas as pd
 import os
 from typing import Tuple, List
 from transformers import pipeline
+import torch
 
-def load_chess_data(max_rows=None) -> pd.DataFrame:
+def load_filtered_chess_data() -> pd.DataFrame:
     """
-    Load chess game data from the simplified CSV file into a pandas DataFrame.
+    Load the filtered chess game data from CSV file into a pandas DataFrame.
     """
-    csv_path = os.path.join('data', 'processed', 'chess_games_simple.csv')
+    csv_path = os.path.join('data', 'processed', 'filtered_chess_games.csv')
     
     df = pd.read_csv(csv_path)
-    if max_rows is not None:
-        df = df.head(max_rows)
     
     # Convert all columns to string type
     df = df.astype(str)
@@ -24,12 +23,16 @@ def load_chess_data(max_rows=None) -> pd.DataFrame:
 
 def initialize_qa_pipeline():
     """
-    Initialize the table question-answering pipeline.
+    Initialize the table question-answering pipeline with GPU support if available.
     """
+    device = 0 if torch.cuda.is_available() else -1
+    print(f"Using device: {'CUDA' if device == 0 else 'CPU'}")
+
     return pipeline(
         task="table-question-answering",
         model="google/tapas-base-finetuned-wtq",
-        tokenizer_kwargs={"clean_up_tokenization_spaces": False}
+        tokenizer_kwargs={"clean_up_tokenization_spaces": False},
+        device=device
     )
 
 def query_table(tqa: callable, question: str, df: pd.DataFrame) -> Tuple[str, List[Tuple[int, int]]]:
@@ -43,24 +46,21 @@ def query_table(tqa: callable, question: str, df: pd.DataFrame) -> Tuple[str, Li
     result = tqa(table=df, query=question)
     return result['answer'], result['coordinates']
 
-def process_questions(tqa: callable, questions: List[str], df: pd.DataFrame):
-    for question in questions:
+def process_questions(tqa: callable, df: pd.DataFrame):
+    while True:
+        question = input("Enter your question (or 'quit' to exit): ")
+        if question.lower() == 'quit':
+            break
         print(f"\nQuestion: {question}")
         answer, coordinates = query_table(tqa, question, df)
         print(f"Answer: {answer}")
         print(f"Coordinates: {coordinates}")
 
 def main():
-    df = load_chess_data()
+    df = load_filtered_chess_data()
     tqa = initialize_qa_pipeline()
 
-    questions = [
-        "When was the most recent game?",
-        "When was Magnus last loss as white?",
-        "Who played the most games as black?"
-    ]
-
-    process_questions(tqa, questions, df)
+    process_questions(tqa, df)
 
 if __name__ == "__main__":
     main()

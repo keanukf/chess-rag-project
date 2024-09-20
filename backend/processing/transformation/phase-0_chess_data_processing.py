@@ -2,11 +2,12 @@ import pandas as pd
 import os
 from datetime import datetime
 
-def format_date(date_str):
+def format_date_time(date_str):
     try:
-        return datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")
+        dt = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
+        return dt.strftime("%Y-%m-%d"), dt.strftime("%H:%M:%S")
     except ValueError:
-        return date_str  # Return original if parsing fails
+        return date_str, ""  # Return original date and empty time if parsing fails
 
 # Define the paths
 input_csv_path = os.path.join("data", "raw", "chess_games_raw.csv")
@@ -17,18 +18,22 @@ df = pd.read_csv(input_csv_path)
 
 # Select only the essential columns
 essential_columns = [
-    "end_time", "white_username", "black_username", "white_result"
+    "end_time", "white_username", "black_username", "white_result",
+    "rated", "time_class"
 ]
 
 # Select only the important columns
 df = df[essential_columns]
 
 # Clean and format the data
-df['end_time'] = df['end_time'].apply(format_date)
+df['date'], df['time'] = zip(*df['end_time'].apply(format_date_time))
 df['white_result'] = df['white_result'].map({'win': 'won', 'checkmated': 'lost', 'resigned': 'lost', 'timeout': 'lost', 'draw': 'draw'})
 
 # Rename columns for clarity
-df.columns = ['date', 'white_player', 'black_player', 'result']
+df.columns = ['end_time', 'white_player', 'black_player', 'result', 'rated', 'time_class', 'date', 'time']
+
+# Reorder columns
+df = df[['date', 'time', 'white_player', 'black_player', 'result', 'rated', 'time_class']]
 
 # Create the processed directory if it doesn't exist
 os.makedirs(os.path.dirname(output_csv_path), exist_ok=True)
