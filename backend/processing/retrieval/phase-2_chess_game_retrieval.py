@@ -1,14 +1,14 @@
 import pandas as pd
 import os
 from typing import Tuple, List
-from transformers import pipeline
+from transformers import pipeline, AutoTokenizer
 import torch
 
 def load_filtered_chess_data() -> pd.DataFrame:
     """
     Load the filtered chess game data from CSV file into a pandas DataFrame.
     """
-    csv_path = os.path.join('data', 'processed', 'filtered_chess_games.csv')
+    csv_path = os.path.join("backend", "processing", "storage", "filtered_chess_games.csv")
     
     df = pd.read_csv(csv_path)
     
@@ -16,22 +16,27 @@ def load_filtered_chess_data() -> pd.DataFrame:
     df = df.astype(str)
     
     # Clean the data
-    df = df.fillna('')  # Replace NaN with empty string
-    df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)  # Strip whitespace
+    df = df.fillna("")  # Replace NaN with empty string
+    df = df.map(lambda x: x.strip() if isinstance(x, str) else x)  # Strip whitespace
     
     return df
 
 def initialize_qa_pipeline():
     """
-    Initialize the table question-answering pipeline with GPU support if available.
+    Initialize the table question-answering pipeline with CPU support.
     """
-    device = 0 if torch.cuda.is_available() else -1
-    print(f"Using device: {'CUDA' if device == 0 else 'CPU'}")
+    device = -1  # Use CPU
+    print("Using CPU")
+
+    model_name = "google/tapas-base-finetuned-wtq"
+    
+    # Initialize the tokenizer with the parameter set
+    tokenizer = AutoTokenizer.from_pretrained(model_name, clean_up_tokenization_spaces=True)
 
     return pipeline(
         task="table-question-answering",
-        model="google/tapas-base-finetuned-wtq",
-        tokenizer_kwargs={"clean_up_tokenization_spaces": False},
+        model=model_name,
+        tokenizer=tokenizer,  # Use the explicitly configured tokenizer
         device=device
     )
 
@@ -44,12 +49,12 @@ def query_table(tqa: callable, question: str, df: pd.DataFrame) -> Tuple[str, Li
     print(df.dtypes)
     
     result = tqa(table=df, query=question)
-    return result['answer'], result['coordinates']
+    return result["answer"], result["coordinates"]
 
 def process_questions(tqa: callable, df: pd.DataFrame):
     while True:
         question = input("Enter your question (or 'quit' to exit): ")
-        if question.lower() == 'quit':
+        if question.lower() == "quit":
             break
         print(f"\nQuestion: {question}")
         answer, coordinates = query_table(tqa, question, df)
