@@ -52,13 +52,20 @@ def process_tapas_result(result: dict) -> str:
         "MAX": lambda x: str(max(x))
     }
     
-    aggregator = result.get("aggregator", "NONE")
+    aggregator = result.get("aggregator")
     answer = result.get("answer", "")
     cells = result.get("cells", [])
     
+    print(f"\nDebug - Aggregator: {aggregator}")
+    print(f"Debug - Raw Answer: {answer}")
+    print(f"Debug - Cells: {cells}")
+    
     if aggregator in aggregation_operators:
-        return aggregation_operators[aggregator](cells)
+        processed_answer = aggregation_operators[aggregator](cells)
+        print(f"Debug - Processed Answer: {processed_answer}")
+        return processed_answer
     else:
+        print(f"Debug - Returning Raw Answer: {answer}")
         return answer
 
 def query_table(tqa: callable, question: str, df: pd.DataFrame) -> str:
@@ -70,12 +77,15 @@ def query_table(tqa: callable, question: str, df: pd.DataFrame) -> str:
     
     processed_answer = process_tapas_result(result)
     
+    print(f"\nFinal Processed Answer: {processed_answer}")
     return processed_answer
 
 def process_questions(tqa: callable, df: pd.DataFrame):
+    print("Enter your questions. Press Enter without typing anything to quit.")
     while True:
-        question = input("Enter your question (or 'quit' to exit): ")
-        if question.lower() == "quit":
+        question = input("\nEnter your question: ").strip()
+        if question == "":
+            print("Exiting. Thank you for using the chess game retrieval system!")
             break
         print(f"\nOriginal question: {question}")
         answer = query_table(tqa, question, df)
