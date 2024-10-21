@@ -27,21 +27,51 @@ df = df[essential_columns]
 
 # Clean and format the data
 df["date"], df["time"] = zip(*df["end_time"].apply(format_date_time))
-df["white_result"] = df["white_result"].map({"win": "won", "checkmated": "lost", "resigned": "lost", "timeout": "lost", "draw": "draw", "repetition": "draw", "agreed": "draw", "timevsinsufficient": "draw", "insufficient": "draw", "stalemate": "draw", "50move": "draw", "bughousepartnerlose": "lost", "abandoned": "lost"})
+df["white_result"] = df["white_result"].map({"win": "win", "checkmated": "loss", "resigned": "loss", "timeout": "loss", "draw": "draw", "repetition": "draw", "agreed": "draw", "timevsinsufficient": "draw", "insufficient": "draw", "stalemate": "draw", "50move": "draw", "bughousepartnerlose": "loss", "abandoned": "loss"})
 
-# Rename columns for clarity
-df.columns = ["end_time", "white_player", "black_player", "result", "rated", "time_class", "date", "time"]
+# Create the restructured dataframe
+restructured_data = []
 
-# Reorder columns
-df = df[["date", "time", "white_player", "black_player", "result", "rated", "time_class"]]
+for _, row in df.iterrows():
+    # White player entry
+    restructured_data.append({
+        'date': row['date'],
+        'time': row['time'],
+        'player': row['white_username'],
+        'role': 'white',
+        'opponent': row['black_username'],
+        'player_result': row['white_result'],
+        'winner': row['white_username'] if row['white_result'] == 'win' else (row['black_username'] if row['white_result'] == 'loss' else 'draw'),
+        'rated': row['rated'],
+        'time_class': row['time_class']
+    })
+    
+    # Black player entry
+    restructured_data.append({
+        'date': row['date'],
+        'time': row['time'],
+        'player': row['black_username'],
+        'role': 'black',
+        'opponent': row['white_username'],
+        'player_result': 'win' if row['white_result'] == 'loss' else ('loss' if row['white_result'] == 'win' else 'draw'),
+        'winner': row['white_username'] if row['white_result'] == 'win' else (row['black_username'] if row['white_result'] == 'loss' else 'draw'),
+        'rated': row['rated'],
+        'time_class': row['time_class']
+    })
+
+# Create the new dataframe
+new_df = pd.DataFrame(restructured_data)
+
+# Reorder columns to match the desired output
+new_df = new_df[['date', 'time', 'player', 'role', 'opponent', 'player_result', 'winner', 'rated', 'time_class']]
 
 # Create the processed directory if it doesn't exist
 os.makedirs(os.path.dirname(output_csv_path), exist_ok=True)
 
 # Export the processed DataFrame to CSV
-df.to_csv(output_csv_path, index=False)
+new_df.to_csv(output_csv_path, index=False)
 
 print(f"Processed data saved to: {output_csv_path}")
-print(f"Shape of the processed DataFrame: {df.shape}")
+print(f"Shape of the processed DataFrame: {new_df.shape}")
 print("\nFirst few rows of the processed data:")
-print(df.head())
+print(new_df.head())

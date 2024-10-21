@@ -7,7 +7,7 @@ def load_chess_data() -> pd.DataFrame:
     return pd.read_csv(csv_path)
 
 def player_filter(df: pd.DataFrame, player: str) -> pd.DataFrame:
-    return df[(df["white_player"] == player) | (df["black_player"] == player)]
+    return df[df['player'] == player]
 
 def time_filter(df: pd.DataFrame, start_date: str, end_date: str) -> pd.DataFrame:
     return df[(df["date"] >= start_date) & (df["date"] <= end_date)]
@@ -20,16 +20,10 @@ def game_mode_filter(df: pd.DataFrame, mode: str) -> pd.DataFrame:
     return df[df["time_class"].str.contains(mode, case=False)]
 
 def opponent_filter(df: pd.DataFrame, player: str, opponent: str) -> pd.DataFrame:
-    return df[((df["white_player"] == player) & (df["black_player"] == opponent)) |
-              ((df["black_player"] == player) & (df["white_player"] == opponent))]
+    return df[(df["player"] == player) & (df["opponent"] == opponent)]
 
 def color_filter(df: pd.DataFrame, player: str, color: str) -> pd.DataFrame:
-    if color.lower() == "white":
-        return df[df["white_player"] == player]
-    elif color.lower() == "black":
-        return df[df["black_player"] == player]
-    else:
-        raise ValueError("Color must be 'white' or 'black'")
+    return df[(df["player"] == player) & (df["role"] == color.lower())]
 
 def rated_filter(df: pd.DataFrame, rated: bool) -> pd.DataFrame:
     return df[df["rated"] == rated]
