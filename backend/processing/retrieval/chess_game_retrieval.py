@@ -44,10 +44,10 @@ def initialize_qa_pipeline():
 
 def process_tapas_result(result: dict) -> str:
     aggregation_operators = {
-        "NONE": lambda x: ", ".join(x),
-        "COUNT": lambda x: str(len(set(x))),
-        "SUM": lambda x: str(sum(float(v) for v in x if v.replace('.','').isdigit())),
-        "AVERAGE": lambda x: str(sum(float(v) for v in x if v.replace('.','').isdigit()) / len(x)) if x else "0",
+        "NONE": lambda x: ", ".join(str(cell) for cell in x),
+        "COUNT": lambda x: str(len(x)),
+        "SUM": lambda x: str(sum(float(cell) for cell in x if str(cell).replace('.','').isdigit())),
+        "AVERAGE": lambda x: str(sum(float(cell) for cell in x if str(cell).replace('.','').isdigit()) / len(x)) if x else "0",
         "MIN": lambda x: str(min(x)),
         "MAX": lambda x: str(max(x))
     }
@@ -59,6 +59,7 @@ def process_tapas_result(result: dict) -> str:
     print(f"\nDebug - Aggregator: {aggregator}")
     print(f"Debug - Raw Answer: {answer}")
     print(f"Debug - Cells: {cells}")
+    print(f"Debug - Number of cells: {len(cells)}")
     
     if aggregator in aggregation_operators:
         processed_answer = aggregation_operators[aggregator](cells)
