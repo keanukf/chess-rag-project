@@ -52,8 +52,10 @@ def process_user_data(username, year, start_month, end_month):
         "User-Agent": os.environ.get("CHESS_COM_USERNAME", "default_username")
     }
     
-    loop = asyncio.get_event_loop()
-    month_data = loop.run_until_complete(fetch_user_data(username, year, start_month, end_month, headers))
+    async def run_async():
+        return await fetch_user_data(username, year, start_month, end_month, headers)
+    
+    month_data = asyncio.run(run_async())
     
     games_data = []
     for month, data in enumerate(month_data, start=start_month):
