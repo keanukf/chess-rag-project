@@ -65,6 +65,9 @@ new_df = pd.DataFrame(restructured_data)
 # Reorder columns to match the desired output
 new_df = new_df[['date', 'time', 'player', 'role', 'opponent', 'player_result', 'winner', 'rated', 'time_class']]
 
+# Add an index column
+new_df.insert(0, 'game_id', range(1, len(new_df) + 1))
+
 # Create the processed directory if it doesn't exist
 os.makedirs(os.path.dirname(output_csv_path), exist_ok=True)
 
