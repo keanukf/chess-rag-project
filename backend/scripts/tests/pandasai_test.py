@@ -25,7 +25,7 @@ chess_df = pd.read_csv(chess_data_path)
 df_chess = SmartDataframe(chess_df, config={"llm": llm})
 
 # Single query to test
-chess_query = "How many games did Hikaru play as white?"
+chess_query = "How many games did Hikaru lose on 2024-01-02 and what are the opponents names?"
 
 # Run query and measure performance
 start_time = time.time()
