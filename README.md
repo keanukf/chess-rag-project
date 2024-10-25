@@ -55,7 +55,7 @@ The backend of the Chess RAG Project is entirely written in Python and is design
    - **Library**: PandasAI
    - **Functionality**: The PandasAI library takes user queries from the frontend and processes them to generate responses from the chatbot. It utilizes the cleaned chess data to provide accurate and insightful answers.
 
-## File Descriptions
+### File Descriptions
 
 - **functions/main.py**: Contains the main functions for data fetching, processing, and analysis, designed to run on Google Cloud Functions.
 - **src/data_fetching/chesscom_data_extraction.py**: Handles the extraction of chess data from Chess.com.
