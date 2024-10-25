@@ -35,8 +35,75 @@ For more information, you can connect with me on [LinkedIn](https://www.linkedin
 
 ## Screenshot
 
-![Chess RAG Project Screenshot](path/to/your/screenshot.png)
+![Chess RAG Project Screenshot](./assets/chatbot_demo.png)
 
----
+## Backend Overview
 
-Feel free to modify any section as needed, and don't forget to replace `path/to/your/screenshot.png` with the actual path to your screenshot file. Let me know if there's anything else you'd like to add or change!
+The backend of the Chess RAG Project is entirely written in Python and is designed to efficiently handle data extraction, processing, and interaction with the chatbot interface.
+
+### Key Components
+
+1. **Data Extraction**:
+   - **File**: `chesscom_data_extraction.py`
+   - **Functionality**: This script extracts raw chess data for a specified year and player names. The extracted data is saved as `chess_games_raw.csv`.
+
+2. **Data Processing**:
+   - **File**: `chess_data_processor.py`
+   - **Functionality**: This script processes the raw chess data into a simplified and cleaned format, which is then stored as `chess_games_simple.csv`. This processed data is ready for use by the chatbot.
+
+3. **Chatbot Query Handling**:
+   - **Library**: PandasAI
+   - **Functionality**: The PandasAI library takes user queries from the frontend and processes them to generate responses from the chatbot. It utilizes the cleaned chess data to provide accurate and insightful answers.
+
+## File Descriptions
+
+- **functions/main.py**: Contains the main functions for data fetching, processing, and analysis, designed to run on Google Cloud Functions.
+- **src/data_fetching/chesscom_data_extraction.py**: Handles the extraction of chess data from Chess.com.
+- **src/transformation/chess_data_processor.py**: Processes and cleans the raw chess data.
+- **src/retrieval/pandasai_retrieval.py**: Manages chatbot queries using the PandasAI library.
+- **src/tests/**: Contains test scripts to ensure data integrity and correctness.
+- **data/**: Stores raw and processed chess data in CSV format.
+- **assets/**: Contains images and other assets for documentation purposes.
+
+### File Structure
+
+Here's a brief overview of the key files in the backend:
+
+```plaintext
+your-project/
+│
+├── functions/
+│   └── main.py                  # Main entry point for Google Cloud Functions
+│
+├── src/
+│   ├── data_fetching/
+│   │   └── chesscom_data_extraction.py  # Script for extracting chess data from Chess.com
+│   ├── transformation/
+│   │   └── chess_data_processor.py      # Script for processing and cleaning chess data
+│   ├── retrieval/
+│   │   └── pandasai_retrieval.py        # Script for handling chatbot queries using PandasAI
+│   └── tests/
+│       ├── test_csv_processing.py       # Tests for CSV data processing
+│       └── chess_games_simple_inspection.py  # Script for inspecting processed chess data
+│
+├── data/
+│   ├── raw/
+│   │   └── chess_games_raw.csv          # Raw chess data
+│   └── processed/
+│       └── chess_games_simple.csv       # Processed and cleaned chess data
+│
+├── assets/
+│   └── chatbot_demo.png                 # Screenshot for README
+│
+├── README.md                            # Project documentation
+└── LICENSE                              # License information
+```
+
+### Deployment
+
+The backend is designed to run serverlessly on Google Cloud, ensuring scalability and ease of maintenance. The specific deployment configurations and services used on Google Cloud are abstracted away, allowing users to interact with the chatbot via the provided [webpage](https://chess-chatbot.webflow.io/).
+
+### Special Instructions
+
+- Ensure that the data extraction and processing scripts are run in sequence to maintain data integrity.
+- The `chess_games_simple.csv` file is crucial for the chatbot's operation, as it serves as the primary data source for user queries.
