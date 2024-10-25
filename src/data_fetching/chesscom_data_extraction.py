@@ -10,8 +10,8 @@ import logging
 from tqdm import tqdm
 import time
 
-# Set up logging
-logging.basicConfig(filename="chess_data_fetch_errors.log", level=logging.ERROR)
+# Set up logging for Google Cloud Functions
+logging.basicConfig(level=logging.ERROR)
 
 class RateLimiter:
     def __init__(self, calls_per_minute):
