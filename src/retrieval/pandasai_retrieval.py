@@ -44,8 +44,7 @@ def analyze_chess_data(chess_df, query):
         logger.error(f"An error occurred during chess data analysis: {str(e)}")
         raise
 
-# This part will only run if the script is executed directly (not when imported as a module)
-if __name__ == "__main__":
+def main():
     # Load the chess games data
     chess_data_path = 'data/processed/chess_games_simple.csv'
     chess_df = pd.read_csv(chess_data_path)
@@ -59,3 +58,7 @@ if __name__ == "__main__":
     print(f"Result: {result['result']}")
     print(f"Time taken: {result['time_taken']:.2f} seconds")
     print("-" * 50)
+
+# This part will only run if the script is executed directly (not when imported as a module)
+if __name__ == "__main__":
+    main()

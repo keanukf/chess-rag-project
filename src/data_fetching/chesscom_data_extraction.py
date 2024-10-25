@@ -12,6 +12,7 @@ import time
 
 # Set up logging for Google Cloud Functions
 logging.basicConfig(level=logging.ERROR)
+logger = logging.getLogger(__name__)
 
 class RateLimiter:
     def __init__(self, calls_per_minute):
