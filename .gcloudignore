@@ -1,3 +1,4 @@
 # Ignore the data directory and any local configuration files
 data/
+assets/
 *.local
