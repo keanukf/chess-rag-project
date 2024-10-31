@@ -1,2 +1,2 @@
-GCS_BUCKET_NAME = 'your-bucket-name'
-CHESS_DATA_FILE_PATH = 'path/to/chess_data.csv' 
+GCS_BUCKET_NAME = 'chess-chatbot-data'
+CHESS_DATA_FILE_PATH = 'gs://chess-chatbot-data/chess_data.csv' 
