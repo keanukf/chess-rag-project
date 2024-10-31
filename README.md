@@ -96,6 +96,7 @@ your-project/
 │   └── chatbot_demo.png                 # Screenshot for README
 │
 ├── README.md                            # Project documentation
+├── requirements.txt                     # Project dependencies
 └── LICENSE                              # License information
 ```
 
