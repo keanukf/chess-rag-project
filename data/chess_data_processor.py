@@ -2,10 +2,27 @@ import pandas as pd
 import os
 from datetime import datetime
 import logging
+import re
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Dictionary to map usernames to real names
+username_to_realname = {
+    # Example entries
+    "Hikaru": "Hikaru Nakamura",
+    "MagnusCarlsen": "Magnus Carlsen",
+    "Firouzja2003": "Alireza Firouzja",
+    "NikoTheodorou": "Nikos Theodorou",
+    "DenLaz": "Deniz Laz",
+    "Baku_Boulevard": "Rauf Mamedov",
+    "lachesisQ": "Ian Nepomniachtchi",
+    "ChessWarrior7197": "Nodirbek Abdusattorov",
+    "GMWSO": "Wesley So",
+    "LOVEVAE": "Wei Yi",
+    "FabianoCaruana": "Fabiano Caruana"
+}
 
 def format_date_time(date_str):
     try:
@@ -20,62 +37,43 @@ def load_data(input_csv_path):
     return pd.read_csv(input_csv_path)
 
 def select_essential_columns(df):
-    """Select only the essential columns from the DataFrame."""
-    essential_columns = [
-        "end_time", "white_username", "black_username", "white_result",
-        "rated", "time_class"
+    """Exclude non-essential columns from the DataFrame."""
+    logger.info("Excluding non-essential columns")
+    columns_to_exclude = [
+        "url", "fen"  # Example columns to exclude
+        # Add more columns to exclude as needed
     ]
-    logger.info("Selecting essential columns")
-    return df[essential_columns]
+    return df.drop(columns=columns_to_exclude, errors='ignore')
+
+def extract_eco_opening(eco_string):
+    """Extract the simple name of the ECO opening."""
+    match = re.search(r'/openings/(.*?)\.\.\.', eco_string)
+    return match.group(1) if match else pd.NA
 
 def clean_and_format_data(df):
     """Clean and format the chess data."""
     logger.info("Cleaning and formatting data")
     df["date"], df["time"] = zip(*df["end_time"].apply(format_date_time))
-    df["white_result"] = df["white_result"].map({
+    
+    result_mapping = {
         "win": "win", "checkmated": "loss", "resigned": "loss", "timeout": "loss",
         "draw": "draw", "repetition": "draw", "agreed": "draw", "timevsinsufficient": "draw",
         "insufficient": "draw", "stalemate": "draw", "50move": "draw",
         "bughousepartnerlose": "loss", "abandoned": "loss"
-    })
+    }
+    
+    df["white_result"] = df["white_result"].map(result_mapping)
+    df["black_result"] = df["white_result"].apply(
+        lambda x: "win" if x == "loss" else ("loss" if x == "win" else "draw")
+    )
+    
+    df["white_realName"] = df["white_username"].map(username_to_realname).fillna("Unknown")
+    df["black_realName"] = df["black_username"].map(username_to_realname).fillna("Unknown")
+    
+    # Extract ECO opening name
+    df["eco"] = df["eco"].apply(lambda x: extract_eco_opening(x))
+    
     return df
-
-def restructure_data(df):
-    """Restructure the DataFrame to include both white and black player entries."""
-    logger.info("Restructuring data")
-    restructured_data = []
-
-    for _, row in df.iterrows():
-        # White player entry
-        restructured_data.append({
-            'date': row['date'],
-            'time': row['time'],
-            'player': row['white_username'],
-            'role': 'white',
-            'opponent': row['black_username'],
-            'player_result': row['white_result'],
-            'winner': row['white_username'] if row['white_result'] == 'win' else (
-                row['black_username'] if row['white_result'] == 'loss' else 'draw'),
-            'rated': row['rated'],
-            'time_class': row['time_class']
-        })
-        
-        # Black player entry
-        restructured_data.append({
-            'date': row['date'],
-            'time': row['time'],
-            'player': row['black_username'],
-            'role': 'black',
-            'opponent': row['white_username'],
-            'player_result': 'win' if row['white_result'] == 'loss' else (
-                'loss' if row['white_result'] == 'win' else 'draw'),
-            'winner': row['white_username'] if row['white_result'] == 'win' else (
-                row['black_username'] if row['white_result'] == 'loss' else 'draw'),
-            'rated': row['rated'],
-            'time_class': row['time_class']
-        })
-
-    return pd.DataFrame(restructured_data)
 
 def save_data(df, output_csv_path):
     """Save the processed DataFrame to a CSV file."""
@@ -84,15 +82,14 @@ def save_data(df, output_csv_path):
 
 def main():
     # Define the paths
-    input_csv_path = os.path.join("data", "raw", "chess_games_raw.csv")
-    output_csv_path = os.path.join("data", "processed", "chess_games_simple.csv")
+    input_csv_path = os.path.join("data", "chess_games_raw.csv")
+    output_csv_path = os.path.join("data", "chess_games_simple.csv")
 
     # Load, process, and save the data
     df = load_data(input_csv_path)
     df = select_essential_columns(df)
     df = clean_and_format_data(df)
-    processed_df = restructure_data(df)
-    save_data(processed_df, output_csv_path)
+    save_data(df, output_csv_path)
 
 # This part will only run if the script is executed directly (not when imported as a module)
 if __name__ == "__main__":

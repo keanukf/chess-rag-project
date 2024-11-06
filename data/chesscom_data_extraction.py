@@ -96,14 +96,14 @@ def fetch_chess_games(usernames, year, start_month=1, end_month=12):
     return pd.DataFrame(all_games_data)
 
 def main():
-    usernames = ["hikaru", "magnuscarlsen", "lachesisQ", "chesswarrior7197", "gukeshdommaraju", "gmwso", "lovevae", "fabianocaruana"]
+    usernames = ["Hikaru", "MagnusCarlsen", "Firouzja2003", "NikoTheodorou", "DenLaz", "Baku_Boulevard", "lachesisQ", "ChessWarrior7197", "GMWSO", "LOVEVAE", "FabianoCaruana"]
     year = 2024
     start_month = 1
-    end_month = 12
+    end_month = 11
     df = fetch_chess_games(usernames, year, start_month, end_month)
 
     # Save DataFrame as CSV in data/raw folder
-    csv_file = "./data/raw/chess_games_raw.csv"
+    csv_file = "./data/chess_games_raw.csv"
     df.to_csv(csv_file, index=False)
     print(f"Raw data saved to {csv_file}")
 
