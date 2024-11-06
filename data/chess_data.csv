@@ -1,4 +1,4 @@
-date,time,player,role,opponent,player_result,winner,rated,time_class
+date,time,player_name,player_role,opponent_name,player_result,winner,rated,time_class
 2024-01-01,19:28:26,Hikaru,white,Gravity_Chess,win,Hikaru,True,blitz
 2024-01-01,19:28:26,Gravity_Chess,black,Hikaru,loss,Hikaru,True,blitz
 2024-01-01,19:31:45,Gravity_Chess,white,Hikaru,loss,Hikaru,True,blitz

@@ -2,8 +2,7 @@ import os
 from io import StringIO
 import pandas as pd
 from google.cloud import storage
-from pandasai import SmartDataframe
-from pandasai.llm import BambooLLM
+from langchain.agents import CSVAgent
 from app.config import GCS_BUCKET_NAME, CHESS_DATA_FILE_PATH
 
 def get_chess_data():
@@ -14,9 +13,21 @@ def get_chess_data():
     return pd.read_csv(StringIO(data.decode('utf-8')))
 
 def query_chess_data(query):
+    # Load the chess data
     df = get_chess_data()
-    pandasai_api_key = os.environ.get("PANDASAI_API_KEY")
-    llm = BambooLLM(api_key=pandasai_api_key)
-    df_chess = SmartDataframe(df, config={"llm": llm})
-    result = df_chess.chat(query)
-    return result 
+    
+    # Save the DataFrame to a temporary CSV file
+    temp_csv_path = '/tmp/chess_data.csv'
+    df.to_csv(temp_csv_path, index=False)
+    
+    # Initialize the CSV agent
+    csv_agent = CSVAgent(file_path=temp_csv_path)
+    
+    # Perform the query
+    result = csv_agent.query(query)
+    
+    # Debug: Print the result to see what is being returned
+    print(result)
+    
+    # Return the result
+    return {"response": result}
