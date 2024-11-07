@@ -47,8 +47,12 @@ def select_essential_columns(df):
 
 def extract_eco_opening(eco_string):
     """Extract the simple name of the ECO opening."""
-    match = re.search(r'/openings/(.*?)\.\.\.', eco_string)
-    return match.group(1) if match else pd.NA
+    try:
+        # Split by '/' and get the last element
+        last_segment = eco_string.split('/')[-1]
+        return last_segment
+    except IndexError:
+        return pd.NA
 
 def clean_and_format_data(df):
     """Clean and format the chess data."""
