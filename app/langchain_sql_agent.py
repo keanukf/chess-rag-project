@@ -12,6 +12,7 @@ from langchain_core.messages import SystemMessage
 from langchain_core.messages import HumanMessage
 from langgraph.prebuilt import create_react_agent
 from google.cloud.sql.connector import Connector
+from sqlalchemy import inspect
 
 # Construct the connection URI for MySQL
 instance_connection_name = os.environ.get("INSTANCE_CONNECTION_NAME")
@@ -39,7 +40,7 @@ engine = sqlalchemy.create_engine(
 # Create a SQLDatabase instance using the MySQL connection URI
 db = SQLDatabase(engine)
 
-llm = ChatVertexAI(model="gemini-1.5-flash")
+llm = ChatVertexAI(model="publishers/meta/models/llama-3.1-70b-instruct-maas")
 
 toolkit = SQLDatabaseToolkit(db=db, llm=llm)
 
@@ -54,21 +55,16 @@ def query_as_list(db, query):
 time_classes = query_as_list(db, "SELECT time_class FROM super_gm_games_2024")
 rules = query_as_list(db, "SELECT rules FROM super_gm_games_2024")
 white_results = query_as_list(db, "SELECT white_result FROM super_gm_games_2024")
-black_results = query_as_list(db, "SELECT black_result FROM super_gm_games_2024")
 white_realNames = query_as_list(db, "SELECT white_realName FROM super_gm_games_2024")
-black_realNames = query_as_list(db, "SELECT black_realName FROM super_gm_games_2024")
 
 # Concatenate all lists
-all_texts = time_classes + rules + white_results + black_results + white_realNames + black_realNames
-
-# Debugging: Print the concatenated list
-print("All Texts:", all_texts)
+all_texts = time_classes + rules + white_results + white_realNames
 
 # Filter out empty strings
 filtered_texts = [text for text in all_texts if text.strip()]
 
-# Debugging: Print the filtered list
-print("Filtered Texts:", filtered_texts)
+# Remove duplicates
+filtered_texts = list(set(filtered_texts))
 
 # Check if filtered_texts is empty
 if not filtered_texts:
@@ -84,6 +80,12 @@ retriever_tool = create_retriever_tool(
     description=description,
 )
 
+# Use SQLAlchemy's reflection to get column names
+inspector = inspect(engine)
+
+# Fetch the column names from the super_gm_games_2024 table
+column_names = [column['name'] for column in inspector.get_columns("super_gm_games_2024")]
+
 system = """You are an agent designed to interact with a MySQL database.
 Given an input question, create a syntactically correct SQL query to run, then look at the results of the query and return the answer.
 Unless the user specifies a specific number of examples they wish to obtain, always limit your query to at most 5 results.
@@ -95,11 +97,11 @@ You MUST double check your query before executing it. If you get an error while 
 
 DO NOT make any DML statements (INSERT, UPDATE, DELETE, DROP etc.) to the database.
 
-You have access to the following tables: {table_names}
+You have access to the following columns in the super_gm_games_2024 table: {column_names}
 
 If you need to filter on a proper noun, you must ALWAYS first look up the filter value using the "search_proper_nouns" tool!
-Do not try to guess at the proper name - use this function to find similar ones. When performing proper noun searches and the user asks for names, alwaysprioritize "white_realName" and "black_realName" over "white_username" and "black_username".""".format(
-    table_names=db.get_usable_table_names()
+Do not try to guess at the proper name - use this function to find similar ones. When performing proper noun searches and the user asks for names, always prioritize "white_realName" and "black_realName" over "white_username" and "black_username".""".format(
+    column_names=", ".join(column_names)
 )
 
 system_message = SystemMessage(content=system)
@@ -109,7 +111,7 @@ tools.append(retriever_tool)
 agent_executor = create_react_agent(llm, tools, state_modifier=system_message)
 
 for s in agent_executor.stream(
-    {"messages": [HumanMessage(content="How often did Hikaru Nagamura play Magnus Carlson?")]}
+    {"messages": [HumanMessage(content="How many games did Fabiano Caruana win in August 2024?")]}
 ):
     print(s)
     print("----")
