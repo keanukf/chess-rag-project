@@ -1,5 +1,4 @@
 import os
-import pymysql
 import pandas as pd
 from google.cloud.sql.connector import Connector
 
