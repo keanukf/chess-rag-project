@@ -2,4 +2,4 @@
 data/
 assets/
 *.local
-cloud-sql_proxy
+cloud-sql-proxy

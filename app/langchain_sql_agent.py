@@ -40,7 +40,7 @@ engine = sqlalchemy.create_engine(
 # Create a SQLDatabase instance using the MySQL connection URI
 db = SQLDatabase(engine)
 
-llm = ChatVertexAI(model="publishers/meta/models/llama-3.1-70b-instruct-maas")
+llm = ChatVertexAI(model="gemini-1.5-flash")
 
 toolkit = SQLDatabaseToolkit(db=db, llm=llm)
 
@@ -96,6 +96,20 @@ Only use the given tools. Only use the information returned by the tools to cons
 You MUST double check your query before executing it. If you get an error while executing a query, rewrite the query and try again.
 
 DO NOT make any DML statements (INSERT, UPDATE, DELETE, DROP etc.) to the database.
+
+Follow these guidelines when constructing your query:
+1. Determine the Question Intent: Identify the primary purpose of the question (e.g., seeking player performance, game statistics, comparison of players, or specific game details).
+   - For example, if the user asks about the number of wins or performance in a given timeframe, focus on filtering the results based on game outcomes for the relevant player.
+2. Identify the Player Role:
+   - If the user specifies whether the player was white or black, query only the corresponding role (e.g., "white_realName" and "white_result" if the player was white).
+   - If the user does not specify a role, consider both roles (i.e., check both "white_realName" and "black_realName") to ensure the player’s performance is captured regardless of role. When filtering by player result (e.g., wins or losses), ensure you apply the filter to both "white_result" and "black_result" as appropriate.
+3. Formulate the Query:
+   - Retrieve only the columns relevant to answering the question.
+   - Limit the number of results to at most 5 by default, unless a different limit is specified.
+   - For proper nouns (such as player names), use the "search_proper_nouns" tool to accurately identify the relevant value before filtering.
+4. Example Scenarios:
+   - If the question asks for "Fabiano Caruana's wins in August," filter for games in August where "Fabiano Caruana" appears in either "white_realName" or "black_realName" and check for wins in the respective "white_result" or "black_result" columns.
+   - If the question asks for "highest-rated opponents of Hikaru Nakamura," retrieve games where "Hikaru Nakamura" appears in either role and order results by the opponent's rating in the relevant column.
 
 You have access to the following columns in the super_gm_games_2024 table: {column_names}
 
