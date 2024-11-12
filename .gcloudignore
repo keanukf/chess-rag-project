@@ -3,3 +3,4 @@ data/
 assets/
 *.local
 cloud-sql-proxy
+environment.yml

@@ -124,9 +124,24 @@ tools.append(retriever_tool)
 
 agent_executor = create_react_agent(llm, tools, state_modifier=system_message)
 
-for s in agent_executor.stream(
-    {"messages": [HumanMessage(content="How many games did Fabiano Caruana win in August 2024?")]}
-):
-    print(s)
-    print("----")
+def execute_query(query):
+    """
+    Execute a query using the agent and return the final answer.
+    """
+    try:
+        # Create a HumanMessage with the query
+        human_message = HumanMessage(content=query)
+        
+        # Use the invoke method to get the messages
+        messages = agent_executor.invoke({"messages": [human_message]})
+        
+        # Access the last AIMessage content
+        final_answer = messages["messages"][-1].content
+        
+        # Return the final answer
+        return final_answer
+    
+    except Exception as e:
+        # Handle exceptions and return an error message
+        return f"Error executing query: {str(e)}"
 

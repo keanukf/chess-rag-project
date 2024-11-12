@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from app.pandasai_query import query_chess_data
+from app.langchain_sql_agent import execute_query
 
 app = Flask(__name__)
 
@@ -11,7 +11,7 @@ def query():
             return jsonify({'error': 'Invalid request, missing "query"'}), 400
 
         query = data['query']
-        response = query_chess_data(query)
+        response = execute_query(query)
         return jsonify({'response': response}), 200
 
     except Exception as e:
