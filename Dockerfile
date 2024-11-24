@@ -1,39 +1,21 @@
-# Stage 1: Build stage
-FROM python:3.12-slim AS builder
-
-# Install system-level dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
+# Use the Miniconda base image
+FROM continuumio/miniconda3
 
 # Set the working directory
 WORKDIR /app
 
-# Copy only the requirements file initially to leverage Docker caching
-COPY requirements.txt .
+# Copy the environment.yml file into the container
+COPY environment.yml .
 
-# Upgrade pip and install dependencies
-RUN pip install --upgrade pip \
-    && pip install --no-cache-dir --default-timeout=300 -r requirements.txt
+# Install Python 3.12 and create the conda environment
+RUN conda install -y python=3.12 && \
+    conda env create -f environment.yml
 
-# Stage 2: Production stage
-FROM python:3.12-slim
+# Activate the environment and set it as the default
+SHELL ["conda", "run", "-n", "rag-test", "/bin/bash", "-c"]
 
-# Set the working directory
-WORKDIR /app
-
-# Copy the dependencies from the builder stage
-COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
-COPY --from=builder /usr/local/bin /usr/local/bin
-
-# Copy the rest of the application code into the container
+# Copy the rest of your application code into the container
 COPY . .
 
-# Set environment variable for Flask
-ENV FLASK_ENV=production
-ENV FLASK_APP=app/main.py
-
-# Expose port 8080 for Google Cloud Run
-EXPOSE 8080
-
-CMD ["python", "-m", "app.main"]
+# Command to run your application
+CMD ["conda", "run", "-n", "rag-test", "python", "-m", "app.main"]

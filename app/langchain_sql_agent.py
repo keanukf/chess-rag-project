@@ -11,7 +11,7 @@ from langchain_community.vectorstores import FAISS
 from langchain_google_vertexai import VertexAIEmbeddings
 from langchain_core.messages import SystemMessage
 from langchain_core.messages import HumanMessage
-from langchain.agents import create_react_agent
+from langgraph.prebuilt import create_react_agent
 from google.cloud.sql.connector import Connector
 from sqlalchemy import inspect
 
