@@ -1,6 +1,9 @@
 import os
-import pandas as pd
+import pymysql
+from dotenv import load_dotenv
 from google.cloud.sql.connector import Connector
+
+load_dotenv()  # Lädt die Variablen aus der .env-Datei
 
 def init_connection_pool():
     """Initialize connection pool to Cloud SQL database"""
@@ -35,9 +38,9 @@ def test_query(query):
             # Get column names
             columns = [desc[0] for desc in cursor.description]
             
-            # Convert to DataFrame
-            df = pd.DataFrame(results, columns=columns)
-            return df
+            # Convert to list of dictionaries
+            results_list = [dict(zip(columns, row)) for row in results]
+            return results_list
             
     except Exception as e:
         print(f"Error executing query: {e}")

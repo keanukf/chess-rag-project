@@ -4,3 +4,5 @@ assets/
 *.local
 cloud-sql-proxy
 environment.yml
+gc_mysql_connection.py
+.env

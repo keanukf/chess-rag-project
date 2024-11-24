@@ -2,3 +2,4 @@ cloud-sql-proxy
 *.local
 *.log
 environment.yml
+.env
