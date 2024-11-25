@@ -6,12 +6,6 @@ WORKDIR /app
 # Copy environment.yml from the root directory to the app folder in the container
 COPY environment.yml /app/environment.yml
 
-# Copy .env file from the root directory to the app folder in the container
-COPY .env /app/.env
-
-# Copy credentials.json from the root directory to the app folder in the container
-COPY chess-chatbot-6e773e8c4ba2.json /app/chess-chatbot-6e773e8c4ba2.json
-
 # Create the Conda environment
 RUN conda env create -f /app/environment.yml
 

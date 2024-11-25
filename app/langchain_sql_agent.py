@@ -2,7 +2,6 @@ import os
 import sqlalchemy
 import ast
 import re
-from dotenv import load_dotenv
 from langchain_community.utilities import SQLDatabase
 from langchain_community.agent_toolkits import SQLDatabaseToolkit
 from langchain_google_vertexai import ChatVertexAI
@@ -15,13 +14,12 @@ from langgraph.prebuilt import create_react_agent
 from google.cloud.sql.connector import Connector
 from sqlalchemy import inspect
 
-load_dotenv()  # Lädt die Variablen aus der .env-Datei
 
 # Construct the connection URI for MySQL
-instance_connection_name = os.environ.get("INSTANCE_CONNECTION_NAME")
-db_user = os.environ.get("DB_USER")
-db_pass = os.environ.get("DB_PASS")
-db_name = os.environ.get("DB_NAME")
+instance_connection_name = os.getenv("INSTANCE_CONNECTION_NAME")
+db_user = os.getenv("DB_USER")
+db_pass = os.getenv("DB_PASS")
+db_name = os.getenv("DB_NAME")
 
 connector = Connector()
 
