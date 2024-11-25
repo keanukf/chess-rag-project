@@ -1,21 +1,32 @@
-# Use the Miniconda base image
 FROM continuumio/miniconda3
 
-# Set the working directory
+# Set working directory
 WORKDIR /app
 
-# Copy the environment.yml file into the container
-COPY environment.yml .
+# Copy environment.yml from the root directory to the app folder in the container
+COPY environment.yml /app/environment.yml
 
-# Install Python 3.12 and create the conda environment
-RUN conda install -y python=3.12 && \
-    conda env create -f environment.yml
+# Copy .env file from the root directory to the app folder in the container
+COPY .env /app/.env
 
-# Activate the environment and set it as the default
-SHELL ["conda", "run", "-n", "rag-test", "/bin/bash", "-c"]
+# Copy credentials.json from the root directory to the app folder in the container
+COPY chess-chatbot-6e773e8c4ba2.json /app/chess-chatbot-6e773e8c4ba2.json
 
-# Copy the rest of your application code into the container
-COPY . .
+# Create the Conda environment
+RUN conda env create -f /app/environment.yml
 
-# Command to run your application
-CMD ["conda", "run", "-n", "rag-test", "python", "-m", "app.main"]
+# Activate the Conda environment and ensure it’s active for subsequent steps
+SHELL ["conda", "run", "-n", "chess-rag-env", "/bin/bash", "-c"]
+
+# Set Flask environment variables
+ENV FLASK_ENV=production
+ENV FLASK_APP=app/main.py
+
+# Expose the Flask port
+EXPOSE 8080
+
+# Copy the application code from the root directory to the container
+COPY . /app
+
+# Final command to run the Flask app using the Conda environment
+CMD ["conda", "run", "-n", "chess-rag-env", "python", "-m", "app.main"]
