@@ -91,20 +91,26 @@ Contributions are welcome! Please open an issue or submit a pull request for any
 ```
 chess-rag-project/
 │
-├── app/
-│   ├── __init__.py
-│   ├── main.py
-│   ├── models/
-│   └── templates/
+├── app/                    # Main application directory
+│   ├── __init__.py         # Initializes the Flask app
+│   ├── main.py             # Entry point for the Flask application
+│   └── langchain_rag.py    # Script for using Langchain to answer questions
 │
-├── tests/
-│   ├── test_app.py
-│   └── test_models.py
+├── data/                   # Directory for data processing scripts and raw data
+│   ├── chess_data_processor.py  # Script for processing chess data
+│   └── chesscom_data_extraction.py  # Script for extracting data from Chess.com
+│   ├── chess_games_raw.csv  # Raw data from Chess.com
+│   ├── chess_games_simple.csv  # Processed data from Chess.com
 │
-├── Dockerfile
-├── requirements.txt
-├── .env.example
-└── README.md
+├── tests/                  # Directory for test cases
+│   └── test_gc_mysql.py  # Tests for the connection to the MySQL database
+│
+├── Dockerfile              # Docker configuration for containerizing the app
+├── environment.yml         # Conda environment configuration file
+├── .env.example            # Example environment variables file (to be implemented)
+├── .gitignore              # Git ignore file
+├── .gcloudignore           # Google Cloud ignore file
+└── README.md               # Project documentation
 ```
 
 ## License
