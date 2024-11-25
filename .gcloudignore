@@ -1,6 +1,7 @@
 # Ignore the data directory and any local configuration files
 data/
 assets/
+tests/
 *.local
 cloud-sql-proxy
 chess-chatbot-6e773e8c4ba2.json
