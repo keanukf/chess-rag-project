@@ -1,4 +1,5 @@
 import os
+import logging
 import sqlalchemy
 import ast
 import re
@@ -14,12 +15,26 @@ from langgraph.prebuilt import create_react_agent
 from google.cloud.sql.connector import Connector
 from sqlalchemy import inspect
 
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
-# Construct the connection URI for MySQL
-instance_connection_name = os.getenv("INSTANCE_CONNECTION_NAME")
+# Retrieve environment variables
 db_user = os.getenv("DB_USER")
 db_pass = os.getenv("DB_PASS")
 db_name = os.getenv("DB_NAME")
+instance_connection_name = os.getenv("INSTANCE_CONNECTION_NAME")
+
+# Log the retrieved environment variables
+logger.debug(f"DB_USER: {db_user}")
+logger.debug(f"DB_PASS: {'***' if db_pass else None}")  # Mask the password for security
+logger.debug(f"DB_NAME: {db_name}")
+logger.debug(f"INSTANCE_CONNECTION_NAME: {instance_connection_name}")
+
+# Check if all required environment variables are set
+if not all([db_user, db_pass, db_name, instance_connection_name]):
+    logger.error("One or more required environment variables are missing!")
+    raise ValueError("One or more required environment variables are missing!")
 
 connector = Connector()
 
