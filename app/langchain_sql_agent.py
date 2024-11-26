@@ -23,16 +23,16 @@ logger = logging.getLogger(__name__)
 db_user = os.getenv("DB_USER")
 db_pass = os.getenv("DB_PASS")
 db_name = os.getenv("DB_NAME")
-instance_connection_name = os.getenv("INSTANCE_CONNECTION_NAME")
+instance_internal_ip = os.getenv("INSTANCE_INTERNAL_IP")
 
 # Log the retrieved environment variables
 logger.debug(f"DB_USER: {db_user}")
 logger.debug(f"DB_PASS: {'***' if db_pass else None}")  # Mask the password for security
 logger.debug(f"DB_NAME: {db_name}")
-logger.debug(f"INSTANCE_CONNECTION_NAME: {instance_connection_name}")
+logger.debug(f"INSTANCE_INTERNAL_IP: {instance_internal_ip}")
 
 # Check if all required environment variables are set
-if not all([db_user, db_pass, db_name, instance_connection_name]):
+if not all([db_user, db_pass, db_name, instance_internal_ip]):
     logger.error("One or more required environment variables are missing!")
     raise ValueError("One or more required environment variables are missing!")
 
@@ -40,7 +40,7 @@ connector = Connector()
 
 def getconn():
     return connector.connect(
-        instance_connection_name,
+        instance_internal_ip,
         "pymysql",
         user=db_user,
         password=db_pass,
@@ -49,8 +49,7 @@ def getconn():
 
 # SQLAlchemy connection string
 engine = sqlalchemy.create_engine(
-    "mysql+pymysql://",
-    creator=getconn
+    f"mysql+pymysql://{db_user}:{db_pass}@{instance_internal_ip}/{db_name}"
 )
 
 # Create a SQLDatabase instance using the MySQL connection URI
