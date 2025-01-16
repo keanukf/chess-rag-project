@@ -1,13 +1,10 @@
 FROM continuumio/miniconda3
 
 # Set working directory
-WORKDIR /app
-
-# Copy environment.yml from the root directory to the app folder in the container
-COPY environment.yml /app/environment.yml
+WORKDIR /backend
 
 # Create the Conda environment
-RUN conda env create -f /app/environment.yml
+RUN conda env create -f /backend/environment.yml
 
 # Activate the Conda environment and ensure it’s active for subsequent steps
 SHELL ["conda", "run", "-n", "chess-rag-env", "/bin/bash", "-c"]
