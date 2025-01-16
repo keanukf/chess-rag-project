@@ -3,8 +3,12 @@ data/
 assets/
 tests/
 *.local
+*.json
 cloud-sql-proxy
 chess-chatbot-6e773e8c4ba2.json
 environment.yml
 gc_mysql_connection.py
 .env
+encoded-key.txt
+swagger.yaml
+openapi.yaml
