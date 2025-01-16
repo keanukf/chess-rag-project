@@ -3,6 +3,7 @@ import os
 from datetime import datetime
 import logging
 import re
+import sqlite3
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -84,16 +85,27 @@ def save_data(df, output_csv_path):
     logger.info(f"Saving processed data to {output_csv_path}")
     df.to_csv(output_csv_path, index=False)
 
+def save_to_sqlite(df, db_name="chess_rag.db", table_name="chess_games"):
+    """Save the DataFrame to a SQLite database."""
+    logger.info(f"Saving processed data to SQLite database {db_name}, table {table_name}")
+    conn = sqlite3.connect(db_name)
+    try:
+        df.to_sql(table_name, conn, if_exists='replace', index=False)
+    finally:
+        conn.close()
+
 def main():
     # Define the paths
     input_csv_path = os.path.join("data", "chess_games_raw.csv")
     output_csv_path = os.path.join("data", "chess_games_simple.csv")
+    output_sqlite_path = os.path.join("data", "chess_rag.db")
 
     # Load, process, and save the data
     df = load_data(input_csv_path)
     df = select_essential_columns(df)
     df = clean_and_format_data(df)
     save_data(df, output_csv_path)
+    save_to_sqlite(df, output_sqlite_path)  # Save to SQLite database
 
 # This part will only run if the script is executed directly (not when imported as a module)
 if __name__ == "__main__":
