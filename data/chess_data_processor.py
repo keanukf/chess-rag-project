@@ -85,7 +85,7 @@ def save_data(df, output_csv_path):
     logger.info(f"Saving processed data to {output_csv_path}")
     df.to_csv(output_csv_path, index=False)
 
-def save_to_sqlite(df, db_name="chess_rag.db", table_name="chess_games"):
+def save_to_sqlite(df, db_name="chess_rag.db", table_name="super_gm_games_2024"):
     """Save the DataFrame to a SQLite database."""
     logger.info(f"Saving processed data to SQLite database {db_name}, table {table_name}")
     conn = sqlite3.connect(db_name)

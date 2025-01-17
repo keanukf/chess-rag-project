@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 import logging
 import sqlalchemy
 import ast
@@ -13,10 +14,27 @@ from langchain_core.messages import SystemMessage
 from langchain_core.messages import HumanMessage
 from langgraph.prebuilt import create_react_agent
 from sqlalchemy import inspect
+from google.cloud import aiplatform
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+# Verify the environment variable
+credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+if not credentials_path:
+    raise EnvironmentError("GOOGLE_APPLICATION_CREDENTIALS not set in .env file")
+
+print(f"Using GCP credentials from: {credentials_path}")
+
+# Initialize Vertex AI with your project ID and location
+project_id = "chess-chatbot"  # Replace with your actual GCP project ID
+location = "us-central1"  # Replace with your desired location
+
+aiplatform.init(project=project_id, location=location)
 
 engine = sqlalchemy.create_engine("sqlite:///data/chess_rag.db")
 
