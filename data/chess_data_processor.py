@@ -98,7 +98,7 @@ def main():
     # Define the paths
     input_csv_path = os.path.join("data", "chess_games_raw.csv")
     output_csv_path = os.path.join("data", "chess_games_simple.csv")
-    output_sqlite_path = os.path.join("data", "chess_rag.db")
+    output_sqlite_path = os.path.join("backend","data", "chess_rag.db")
 
     # Load, process, and save the data
     df = load_data(input_csv_path)

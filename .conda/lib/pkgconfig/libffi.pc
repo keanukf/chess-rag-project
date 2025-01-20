@@ -1,0 +1,11 @@
+prefix=/Users/keanuprivatbenutzer/Library/CloudStorage/GoogleDrive-keanu.forthmann@gmail.com/Meine Ablage/06 Uni/09 Project - AI Use Case/02 Development Phase/chess-rag-project/.conda
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+toolexeclibdir=${libdir}
+includedir=/Users/keanuprivatbenutzer/Library/CloudStorage/GoogleDrive-keanu.forthmann@gmail.com/Meine Ablage/06 Uni/09 Project - AI Use Case/02 Development Phase/chess-rag-project/.conda/include
+
+Name: libffi
+Description: Library supporting Foreign Function Interfaces
+Version: 3.4.4
+Libs: -L${toolexeclibdir} -lffi
+Cflags: -I${includedir}

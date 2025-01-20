@@ -1,0 +1,13 @@
+prefix=/Users/keanuprivatbenutzer/Library/CloudStorage/GoogleDrive-keanu.forthmann@gmail.com/Meine Ablage/06 Uni/09 Project - AI Use Case/02 Development Phase/chess-rag-project/.conda
+exec_prefix=/Users/keanuprivatbenutzer/Library/CloudStorage/GoogleDrive-keanu.forthmann@gmail.com/Meine Ablage/06 Uni/09 Project - AI Use Case/02 Development Phase/chess-rag-project/.conda
+libdir=/Users/keanuprivatbenutzer/Library/CloudStorage/GoogleDrive-keanu.forthmann@gmail.com/Meine Ablage/06 Uni/09 Project - AI Use Case/02 Development Phase/chess-rag-project/.conda/lib
+sharedlibdir=/Users/keanuprivatbenutzer/Library/CloudStorage/GoogleDrive-keanu.forthmann@gmail.com/Meine Ablage/06 Uni/09 Project - AI Use Case/02 Development Phase/chess-rag-project/.conda/lib
+includedir=/Users/keanuprivatbenutzer/Library/CloudStorage/GoogleDrive-keanu.forthmann@gmail.com/Meine Ablage/06 Uni/09 Project - AI Use Case/02 Development Phase/chess-rag-project/.conda/include
+
+Name: zlib
+Description: zlib compression library
+Version: 1.2.13
+
+Requires:
+Libs: -L${libdir} -L${sharedlibdir} -lz
+Cflags: -I${includedir}

@@ -1,0 +1,12 @@
+prefix=/Users/keanuprivatbenutzer/Library/CloudStorage/GoogleDrive-keanu.forthmann@gmail.com/Meine Ablage/06 Uni/09 Project - AI Use Case/02 Development Phase/chess-rag-project/.conda
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: Readline
+Description: Gnu Readline library for command line editing
+URL: http://tiswww.cwru.edu/php/chet/readline/rltop.html
+Version: 8.2
+Requires.private: ncurses
+Libs: -L${libdir} -lreadline
+Cflags: -I${includedir}

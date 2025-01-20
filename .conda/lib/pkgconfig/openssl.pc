@@ -1,0 +1,9 @@
+prefix=/Users/keanuprivatbenutzer/Library/CloudStorage/GoogleDrive-keanu.forthmann@gmail.com/Meine Ablage/06 Uni/09 Project - AI Use Case/02 Development Phase/chess-rag-project/.conda
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: OpenSSL
+Description: Secure Sockets Layer and cryptography libraries and tools
+Version: 3.0.15
+Requires: libssl libcrypto

@@ -1,0 +1,20 @@
+#
+# Author: Lasse Collin
+#
+# This file has been put into the public domain.
+# You can do whatever you want with this file.
+#
+
+prefix=/Users/keanuprivatbenutzer/Library/CloudStorage/GoogleDrive-keanu.forthmann@gmail.com/Meine Ablage/06 Uni/09 Project - AI Use Case/02 Development Phase/chess-rag-project/.conda
+exec_prefix=/Users/keanuprivatbenutzer/Library/CloudStorage/GoogleDrive-keanu.forthmann@gmail.com/Meine Ablage/06 Uni/09 Project - AI Use Case/02 Development Phase/chess-rag-project/.conda
+libdir=/Users/keanuprivatbenutzer/Library/CloudStorage/GoogleDrive-keanu.forthmann@gmail.com/Meine Ablage/06 Uni/09 Project - AI Use Case/02 Development Phase/chess-rag-project/.conda/lib
+includedir=/Users/keanuprivatbenutzer/Library/CloudStorage/GoogleDrive-keanu.forthmann@gmail.com/Meine Ablage/06 Uni/09 Project - AI Use Case/02 Development Phase/chess-rag-project/.conda/include
+
+Name: liblzma
+Description: General purpose data compression library
+URL: https://xz.tukaani.org/xz-utils/
+Version: 5.4.6
+Cflags: -I${includedir}
+Cflags.private: -DLZMA_API_STATIC
+Libs: -L${libdir} -llzma
+Libs.private: -pthread -lpthread
