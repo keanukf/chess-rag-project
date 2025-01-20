@@ -41,7 +41,7 @@ engine = sqlalchemy.create_engine("sqlite:///data/chess_rag.db")
 # Create a SQLDatabase instance using sqlite database
 db = SQLDatabase(engine)
 
-llm = ChatVertexAI(model="gemini-2.0-flash-exp")
+llm = ChatVertexAI(model="gemini-1.5-flash")
 
 toolkit = SQLDatabaseToolkit(db=db, llm=llm)
 

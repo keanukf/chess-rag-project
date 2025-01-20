@@ -11,8 +11,8 @@ interface ChatMessage {
 }
 
 const suggestions = [
-  "Who won the most games on chess.com in 2024?",
-  "What was the highest rated game in 2024?"
+  "How often did Hikaru Nakamura win with white?",
+  "What is Magnus Carlsen's favorite opening?"
 ]
 
 export function Chat() {
@@ -56,10 +56,12 @@ export function Chat() {
       }
 
       const data = await response.json()
+      console.log('Data received from backend:', data);
+
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: data.answer
+        content: data.response
       }
 
       setMessages(prevMessages => [...prevMessages, assistantMessage])
@@ -81,7 +83,7 @@ export function Chat() {
   }
 
   return (
-    <div className="flex flex-col h-[90vh] w-96 mx-auto bg-white rounded-3xl shadow-lg overflow-hidden">
+    <div className="flex flex-col h-[90vh] w-[32rem] mx-auto bg-white rounded-3xl shadow-lg overflow-hidden">
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message) => (
           <Message key={message.id} message={message} />
@@ -104,7 +106,7 @@ export function Chat() {
             type="text"
             value={input}
             onChange={handleInputChange}
-            placeholder="Ask about chess.com games in 2024..."
+            placeholder="Ask about chess.com games..."
             className="w-full p-3 pr-12 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button
