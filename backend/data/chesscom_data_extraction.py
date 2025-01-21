@@ -9,10 +9,14 @@ from datetime import datetime
 import logging
 from tqdm import tqdm
 import time
+from dotenv import load_dotenv
 
 # Set up logging for Google Cloud Functions
 logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger(__name__)
+
+# Load environment variables from a .env file located one directory above
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 class RateLimiter:
     def __init__(self, calls_per_minute):
@@ -50,7 +54,7 @@ async def fetch_user_data(username, year, start_month, end_month, headers):
 
 def process_user_data(username, year, start_month, end_month):
     headers = {
-        "User-Agent": os.environ.get("CHESS_COM_USERNAME", "default_username")
+        "User-Agent": os.getenv("CHESS_COM_USERNAME", "default_username")
     }
     
     async def run_async():
@@ -75,7 +79,6 @@ def process_user_data(username, year, start_month, end_month):
                     "black_username": game["black"].get("username"),
                     "black_rating": game["black"].get("rating"),
                     "black_result": game["black"].get("result"),
-                    "eco": game.get("eco"),
                     "fen": game.get("fen"),
                     "white_accuracy": game.get("accuracies", {}).get("white"),
                     "black_accuracy": game.get("accuracies", {}).get("black"),
@@ -99,11 +102,11 @@ def main():
     usernames = ["Hikaru", "MagnusCarlsen", "Firouzja2003", "NikoTheodorou", "DenLaz", "Baku_Boulevard", "lachesisQ", "ChessWarrior7197", "GMWSO", "LOVEVAE", "FabianoCaruana"]
     year = 2024
     start_month = 1
-    end_month = 11
+    end_month = 12
     df = fetch_chess_games(usernames, year, start_month, end_month)
 
     # Save DataFrame as CSV in data/raw folder
-    csv_file = "./data/chess_games_raw.csv"
+    csv_file = os.path.join(os.path.dirname(__file__), 'chess_games_raw.csv')
     df.to_csv(csv_file, index=False)
     print(f"Raw data saved to {csv_file}")
 

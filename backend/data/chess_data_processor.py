@@ -2,7 +2,6 @@ import pandas as pd
 import os
 from datetime import datetime
 import logging
-import re
 import sqlite3
 
 # Set up logging
@@ -95,10 +94,13 @@ def save_to_sqlite(df, db_name="chess_rag.db", table_name="super_gm_games_2024")
         conn.close()
 
 def main():
-    # Define the paths
-    input_csv_path = os.path.join("data", "chess_games_raw.csv")
-    output_csv_path = os.path.join("data", "chess_games_simple.csv")
-    output_sqlite_path = os.path.join("backend","data", "chess_rag.db")
+    # Get the directory path of the current file
+    current_dir = os.path.dirname(__file__)
+    
+    # Define the paths relative to the current file's directory
+    input_csv_path = os.path.join(current_dir, "chess_games_raw.csv")
+    output_csv_path = os.path.join(current_dir, "chess_games_simple.csv")
+    output_sqlite_path = os.path.join(current_dir, "chess_rag.db")
 
     # Load, process, and save the data
     df = load_data(input_csv_path)
