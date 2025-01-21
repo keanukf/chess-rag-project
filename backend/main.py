@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from backend.langchain_sql_agent import execute_query
+from langchain_sql_agent import execute_query
 
 app = Flask(__name__)
 

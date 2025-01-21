@@ -16,8 +16,8 @@ from langgraph.prebuilt import create_react_agent
 from sqlalchemy import inspect
 from google.cloud import aiplatform
 
-# Load environment variables from .env file
-load_dotenv()
+# Load environment variables from .env file located in the same directory as this script
+load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -31,12 +31,14 @@ if not credentials_path:
 print(f"Using GCP credentials from: {credentials_path}")
 
 # Initialize Vertex AI with your project ID and location
-project_id = "chess-chatbot"  # Replace with your actual GCP project ID
-location = "us-central1"  # Replace with your desired location
+project_id = os.getenv("GCP_PROJECT_ID", "default_project_id")  # Use environment variable or default
+location = os.getenv("GCP_LOCATION", "us-central1")  # Use environment variable or default
 
 aiplatform.init(project=project_id, location=location)
 
-engine = sqlalchemy.create_engine("sqlite:///data/chess_rag.db")
+# Use a relative path for the SQLite database
+db_path = os.path.join(os.path.dirname(__file__), 'data', 'chess_rag.db')
+engine = sqlalchemy.create_engine(f"sqlite:///{db_path}")
 
 # Create a SQLDatabase instance using sqlite database
 db = SQLDatabase(engine)
@@ -103,7 +105,7 @@ Follow these guidelines when constructing your query:
    - For example, if the user asks about the number of wins or performance in a given timeframe, focus on filtering the results based on game outcomes for the relevant player.
 2. Identify the Player Role:
    - If the user specifies whether the player was white or black, query only the corresponding role (e.g., "white_realName" and "white_result" if the player was white).
-   - If the user does not specify a role, consider both roles (i.e., check both "white_realName" and "black_realName") to ensure the player’s performance is captured regardless of role. When filtering by player result (e.g., wins or losses), ensure you apply the filter to both "white_result" and "black_result" as appropriate.
+   - If the user does not specify a role, consider both roles (i.e., check both "white_realName" and "black_realName") to ensure the player's performance is captured regardless of role. When filtering by player result (e.g., wins or losses), ensure you apply the filter to both "white_result" and "black_result" as appropriate.
 3. Formulate the Query:
    - Retrieve only the columns relevant to answering the question.
    - Limit the number of results to at most 5 by default, unless a different limit is specified.
