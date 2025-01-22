@@ -45,15 +45,6 @@ def select_essential_columns(df):
     ]
     return df.drop(columns=columns_to_exclude, errors='ignore')
 
-def extract_eco_opening(eco_string):
-    """Extract the simple name of the ECO opening."""
-    try:
-        # Split by '/' and get the last element
-        last_segment = eco_string.split('/')[-1]
-        return last_segment
-    except IndexError:
-        return pd.NA
-
 def clean_and_format_data(df):
     """Clean and format the chess data."""
     logger.info("Cleaning and formatting data")
@@ -73,9 +64,6 @@ def clean_and_format_data(df):
     
     df["white_realName"] = df["white_username"].map(username_to_realname).fillna("Unknown")
     df["black_realName"] = df["black_username"].map(username_to_realname).fillna("Unknown")
-    
-    # Extract ECO opening name
-    df["eco"] = df["eco"].apply(lambda x: extract_eco_opening(x))
     
     return df
 

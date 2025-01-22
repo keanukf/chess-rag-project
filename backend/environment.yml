@@ -20,6 +20,8 @@ dependencies:
   - charset-normalizer=3.3.2
   - click=8.1.7
   - dataclasses-json=0.6.7
+  - faiss=1.9.0
+  - faiss-cpu=1.9.0
   - flask=3.0.3
   - frozenlist=1.5.0
   - greenlet=3.1.1
@@ -40,6 +42,7 @@ dependencies:
   - langgraph-sdk=0.1.51
   - langsmith=0.1.147
   - libexpat=2.6.4
+  - libfaiss=1.9.0
   - libffi=3.4.4
   - libgfortran5=11.3.0
   - libopenblas=0.3.21

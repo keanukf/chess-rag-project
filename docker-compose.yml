@@ -8,7 +8,6 @@ services:
     environment:
       - FLASK_ENV=production
       - FLASK_APP=backend/main.py
-      - DATABASE_URL=sqlite:///backend/data/chess_rag.db
     volumes:
       - ./backend:/backend
 
