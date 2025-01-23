@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { ArrowUpIcon } from 'lucide-react'
 import { Message } from './Message'
+import Image from 'next/image'
 
 interface ChatMessage {
   id: string
@@ -11,8 +12,8 @@ interface ChatMessage {
 }
 
 const suggestions = [
-  "How often did Hikaru Nakamura win with white?",
-  "What is Magnus Carlsen's favorite opening?"
+  "What was Hikaru Nakamura's last opponent's username?",
+  "How many games did Alireza Firouzja play in 2024?"
 ]
 
 export function Chat() {
@@ -89,7 +90,7 @@ export function Chat() {
           <Message key={message.id} message={message} />
         ))}
       </div>
-      <div className="p-4 border-t space-y-4">
+      <div className="p-4 border-0 space-y-4">
         <div className="flex space-x-2">
           {suggestions.map((suggestion, index) => (
             <button

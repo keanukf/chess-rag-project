@@ -16,7 +16,7 @@ export function Message({ message }: MessageProps) {
         className={`max-w-[80%] p-4 rounded-2xl ${
           message.role === 'user'
             ? 'bg-blue-500 text-white'
-            : 'bg-gray-200 text-gray-800'
+            : 'bg-gray-100 text-gray-800'
         }`}
       >
         <p>{message.content}</p>
