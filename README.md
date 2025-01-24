@@ -6,7 +6,7 @@ This is a local chess chatbot web application designed to answer questions about
 
 ## Application Architecture
 
-The project is a local chess chatbot web application with a multi-tier architecture comprising a frontend, a backend, and a cloud inference layer. 
+The project is a local chess chatbot web application with a multi-tier architecture comprising a frontend, a backend, and a cloud inference layer.
 
 - **Frontend**: Developed using Next.js, it provides a user-friendly interface for interacting with the chatbot. Users can input queries and receive responses, facilitating seamless communication with the backend.
 
@@ -26,7 +26,13 @@ This architecture allows for efficient data retrieval and processing, combining 
   - `data/chess_data_processor.py`: This file contains the code for processing the extracted data. Also included in the repository for reference and can be used to process and prepare the extracted data.
   - `data/chess_rag.db`: This file contains the SQLite database for storing the processed data.
   - `langchain_sql_agent.py`: This is likely the main script that runs the backend server and handles the query translation and data retrieval.
-  
+
+#### Langchain Agent Workflow
+
+The LangChain agent is responsible for transforming user queries into SQL queries to retrieve the correct information from the database. It leverages a combination of a Language Model (LLM) and various tools to achieve this. When a user inputs a query, the LangChain agent processes the natural language input using the LLM, which helps in understanding the intent and context of the query. The agent then utilizes predefined tools and methods to convert this processed query into an appropriate SQL command. This SQL command is executed against the local SQLite database to fetch the relevant chess data. The LangChain agent ensures that the queries are accurate and optimized for retrieving the necessary information, providing users with precise and relevant responses to their questions.
+
+![Langchain Agent Workflow](assets/agent_graph.png)
+
 ### 2. **Frontend**
 
 - **Purpose**: The frontend is built using Next.js and provides a user interface for interacting with the chatbot. Users can input their queries and receive responses from the chatbot.
@@ -39,7 +45,7 @@ This architecture allows for efficient data retrieval and processing, combining 
 
 Here is a comprehensive tree of the folder structure with short descriptions:
 
-```
+```markdown
 /chess-rag-project
 │
 ├── backend
@@ -83,6 +89,7 @@ You can start the backend and frontend components separately or at once using Do
 To start both the backend and frontend at once, use Docker Compose. Ensure you have Docker and Docker Compose installed on your machine.
 
 1. Build and start the services:
+
     ```bash
     docker-compose up --build
     ```
@@ -94,21 +101,25 @@ To start both the backend and frontend at once, use Docker Compose. Ensure you h
 #### Backend
 
 1. Navigate to the backend directory:
+
     ```bash
     cd backend
     ```
 
 2. Create a new Conda environment using the `environment.yml` file:
+
     ```bash
     conda env create -f environment.yml
     ```
 
 3. Activate the Conda environment:
+
     ```bash
     conda activate chessbot
     ```
 
 4. Run the backend server:
+
     ```bash
     python -m main
     ```
@@ -116,6 +127,7 @@ To start both the backend and frontend at once, use Docker Compose. Ensure you h
 #### Frontend
 
 1. Navigate to the frontend directory:
+
     ```bash
     cd frontend
     ```
@@ -153,6 +165,7 @@ To enable the backend to interact with Google VertexAI, you need to create and e
 6. **Embed the Credential in Your Application**:
    - Place the JSON key file in a secure location within your project directory.
    - Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to the path of the JSON key file. This can be done by adding the following line to your environment setup script or terminal session:
+
      ```bash
      export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/service-account-file.json"
      ```

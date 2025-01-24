@@ -147,4 +147,3 @@ def execute_query(query):
     except Exception as e:
         # Handle exceptions and return an error message
         return f"Error executing query: {str(e)}"
-
