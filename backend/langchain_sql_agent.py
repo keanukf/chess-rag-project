@@ -35,7 +35,7 @@ llm_endpoint = HuggingFaceEndpoint(
     max_new_tokens=512,
     temperature=0.5
 )
-llm = ChatHuggingFace(llm=llm_endpoint, verbose=True)
+llm = ChatHuggingFace(llm=llm_endpoint)
 
 toolkit = SQLDatabaseToolkit(db=db, llm=llm)
 
@@ -131,10 +131,10 @@ def execute_query(query):
         messages = agent_executor.invoke({"messages": [human_message]})
         
         # Access the last AIMessage content
-        final_answer = messages["messages"][-1].content
+        #final_answer = messages.messages[-1].content
         
         # Return the final answer
-        return final_answer
+        return messages
     
     except Exception as e:
         # Handle exceptions and return an error message
