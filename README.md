@@ -1,4 +1,4 @@
-# Local Chess Chatbot Web Application
+# Chess Chatbot with RAG Architecture: A Self-Hosted Web Application for Chess.com Data Queries
 
 This is a local chess chatbot web application designed to answer questions about chess.com games. The application employs a Retrieval-Augmented Generation (RAG) approach using a LangChain agent and a VertexAI LLM engine to translate user queries into SQL queries for retrieving relevant data.
 
