@@ -30,10 +30,11 @@ db = SQLDatabase(engine)
 
 # Initialize the Hugging Face model (Gemma)
 llm_endpoint = HuggingFaceEndpoint(
-    repo_id="microsoft/Phi-3-mini-4k-instruct",
+    repo_id="microsoft/Phi-3-medium-128k-instruct",
     task="text-generation",
     max_new_tokens=512,
-    temperature=0.5
+    temperature=0.5,
+    openai_format=True
 )
 llm = ChatHuggingFace(llm=llm_endpoint)
 
@@ -81,7 +82,7 @@ inspector = inspect(engine)
 # Fetch the column names from the super_gm_games_2024 table
 column_names = [column['name'] for column in inspector.get_columns("super_gm_games_2024")]
 
-system = """You are an agent designed to interact with a MySQL database.
+system = """You are an agent designed to interact with a SQLite database.
 Given an input question, create a syntactically correct SQL query to run, then look at the results of the query and return the answer.
 Unless the user specifies a specific number of examples they wish to obtain, always limit your query to at most 5 results.
 You can order the results by a relevant column to return the most interesting examples in the database.
