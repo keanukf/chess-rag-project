@@ -4,46 +4,38 @@ import logging
 import sqlalchemy
 import ast
 import re
-from langchain_community.utilities import SQLDatabase
-from langchain_community.agent_toolkits import SQLDatabaseToolkit
-from langchain_google_vertexai import ChatVertexAI
+from langchain_community.utilities.sql_database import SQLDatabase
+from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
 from langchain.agents.agent_toolkits import create_retriever_tool
 from langchain_community.vectorstores import FAISS
-from langchain_google_vertexai import VertexAIEmbeddings
-from langchain_core.messages import SystemMessage
-from langchain_core.messages import HumanMessage
 from langgraph.prebuilt import create_react_agent
 from sqlalchemy import inspect
-from google.cloud import aiplatform
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
+from langchain_core.messages import SystemMessage, HumanMessage
 
-# Load environment variables from .env file located in the same directory as this script
+# Load environment variables
 load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-# Verify the environment variable
-credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-if not credentials_path:
-    raise EnvironmentError("GOOGLE_APPLICATION_CREDENTIALS not set in .env file")
-
-print(f"Using GCP credentials from: {credentials_path}")
-
-# Initialize Vertex AI with your project ID and location
-project_id = os.getenv("GCP_PROJECT_ID", "default_project_id")  # Use environment variable or default
-location = os.getenv("GCP_LOCATION", "us-central1")  # Use environment variable or default
-
-aiplatform.init(project=project_id, location=location)
-
 # Use a relative path for the SQLite database
 db_path = os.path.join(os.path.dirname(__file__), 'data', 'chess_rag.db')
 engine = sqlalchemy.create_engine(f"sqlite:///{db_path}")
 
-# Create a SQLDatabase instance using sqlite database
+# Create a SQLDatabase instance
 db = SQLDatabase(engine)
 
-llm = ChatVertexAI(model="gemini-1.5-flash")
+# Initialize the Hugging Face model (Gemma)
+llm_endpoint = HuggingFaceEndpoint(
+    repo_id="microsoft/Phi-3-mini-4k-instruct",
+    task="text-generation",
+    max_new_tokens=512,
+    temperature=0.5
+)
+llm = ChatHuggingFace(llm=llm_endpoint, verbose=True)
 
 toolkit = SQLDatabaseToolkit(db=db, llm=llm)
 
@@ -73,7 +65,7 @@ filtered_texts = list(set(filtered_texts))
 if not filtered_texts:
     raise ValueError("No valid text data available for embedding.")
 
-vector_db = FAISS.from_texts(filtered_texts, VertexAIEmbeddings(model_name="text-embedding-004"))
+vector_db = FAISS.from_texts(filtered_texts, HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2"))
 retriever = vector_db.as_retriever(search_kwargs={"k": 5})
 description = """Use to look up values to filter on. Input is an approximate spelling of the proper noun, output is \
 valid proper nouns. Use the noun most similar to the search."""
@@ -147,4 +139,3 @@ def execute_query(query):
     except Exception as e:
         # Handle exceptions and return an error message
         return f"Error executing query: {str(e)}"
-
