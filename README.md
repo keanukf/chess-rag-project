@@ -1,43 +1,41 @@
 # Local Chess Chatbot Web Application
 
-This is a local chess chatbot web application designed to answer questions about chess.com games. The application employs a Retrieval-Augmented Generation (RAG) approach using a LangChain agent to translate user queries into SQL queries for retrieving relevant data.
+This is a local chess chatbot web application designed to answer questions about chess.com games. The application employs a Retrieval-Augmented Generation (RAG) approach using a LangChain agent and a VertexAI LLM engine to translate user queries into SQL queries for retrieving relevant data.
 
 ![Chatbot Demo](assets/chatbot_demo.png)
 
-## Project Structure
+## Application Architecture
 
-The project consists of two main components:
+The project is a local chess chatbot web application with a multi-tier architecture comprising a frontend, a backend, and a cloud inference layer. 
 
-1. **Backend**: The backend is responsible for handling the logic of translating user queries into SQL queries and retrieving relevant data from the database. It uses a LangChain agent and various tools to achieve this.
+- **Frontend**: Developed using Next.js, it provides a user-friendly interface for interacting with the chatbot. Users can input queries and receive responses, facilitating seamless communication with the backend.
 
-2. **Frontend**: The frontend is built using Next.js and provides a user interface for interacting with the chatbot. Users can input their queries and receive responses from the chatbot.
+- **Backend**: Built using a Flask application, it leverages LangChain for query processing and translates these queries into SQL commands to interact with a local SQLite database, which stores chess data. The backend also integrates with Google VertexAI to enhance query processing with advanced AI capabilities.
 
-### Repository Structure Overview
+- **Cloud Inference Layer**: Utilizes Google VertexAI as a cloud inference provider to process and enhance user queries with sophisticated AI models.
 
-The repository is organized into two main components: the **Backend** and the **Frontend**. Each component has its own directory and is responsible for different parts of the application.
+This architecture allows for efficient data retrieval and processing, combining local and cloud resources to deliver a robust chatbot experience.
 
-#### 1. **Backend**
+![Application Architecture](assets/application_architecture.svg)
+
+### 1. **Backend**
+
 - **Purpose**: The backend handles the logic of translating user queries into SQL queries and retrieving relevant data from the database. It uses a LangChain agent and various tools to achieve this.
 - **Key Files**:
+  - `data/chesscom_data_extraction.py`: This file contains the code for extracting data from chess.com. It is included in the repository for reference and can be used to extract data from chess.com.
+  - `data/chess_data_processor.py`: This file contains the code for processing the extracted data. Also included in the repository for reference and can be used to process and prepare the extracted data.
+  - `data/chess_rag.db`: This file contains the SQLite database for storing the processed data.
   - `langchain_sql_agent.py`: This is likely the main script that runs the backend server and handles the query translation and data retrieval.
-  - `requirements.txt`: Contains the list of Python dependencies needed for the backend.
+  
+### 2. **Frontend**
 
-#### 2. **Frontend**
 - **Purpose**: The frontend is built using Next.js and provides a user interface for interacting with the chatbot. Users can input their queries and receive responses from the chatbot.
 - **Key Files**:
-  - `package.json`: Manages the dependencies and scripts for the frontend.
-  - `.next/`: This directory is typically used by Next.js to store build artifacts and other runtime data.
-  - `node_modules/`: Contains all the npm packages required for the frontend.
+  - `/components/Chat.tsx`: This is the main component that handles the chat interface and interaction with the backend.
+  - `/components/Message.tsx`: This component represents a single message in the chat interface.
+  - `/components/GMBar.tsx`: This component represents the game mode bar in the chat interface.
 
-### Additional Files and Directories
-
-- **Docker Configuration**: The repository uses Docker Compose to manage and run both the backend and frontend services. This is indicated by the instructions in the `README.md` for using Docker Compose to build and start the services.
-
-- **.gitignore Files**: There are `.gitignore` files in both the root and frontend directories to exclude certain files and directories from being tracked by Git. For example, `node_modules/` and `.env` files are ignored.
-
-- **Documentation and Licenses**: The repository includes various documentation files and licenses, such as the `LICENSE` file, which contains the Apache License 2.0, and other documentation files related to dependencies and tools used in the project.
-
-### Folder Structure
+## Folder Structure
 
 Here is a comprehensive tree of the folder structure with short descriptions:
 
@@ -91,7 +89,7 @@ To start both the backend and frontend at once, use Docker Compose. Ensure you h
 
 2. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-### Running Backend and Frontend Separately
+### Running Backend and Frontend Separately without Docker
 
 #### Backend
 
@@ -107,12 +105,12 @@ To start both the backend and frontend at once, use Docker Compose. Ensure you h
 
 3. Activate the Conda environment:
     ```bash
-    conda activate <your-environment-name>
+    conda activate chessbot
     ```
 
 4. Run the backend server:
     ```bash
-    python langchain_sql_agent.py
+    python -m main
     ```
 
 #### Frontend
@@ -122,40 +120,41 @@ To start both the backend and frontend at once, use Docker Compose. Ensure you h
     cd frontend
     ```
 
-2. Install the required dependencies:
-    ```bash
-    npm install
-    # or
-    yarn install
-    # or
-    pnpm install
-    # or
-    bun install
-    ```
+## Google Cloud Credentials Setup
 
-3. Run the development server:
-    ```bash
-    npm run dev
-    # or
-    yarn dev
-    # or
-    pnpm dev
-    # or
-    bun dev
-    ```
+To enable the backend to interact with Google VertexAI, you need to create and embed a Google Cloud JSON credential file with the minimum required permissions.
 
-4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Steps to Create and Embed Google Cloud Credentials
 
-## Learn More
+1. **Create a Google Cloud Project**:
+   - Go to the [Google Cloud Console](https://console.cloud.google.com/).
+   - Create a new project or select an existing project.
 
-To learn more about the technologies used in this project, take a look at the following resources:
+2. **Enable Vertex AI API**:
+   - In the Google Cloud Console, navigate to the "APIs & Services" dashboard.
+   - Click on "Enable APIs and Services" and search for "Vertex AI".
+   - Enable the Vertex AI API for your project.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [LangChain Documentation](https://langchain.com/docs) - learn about LangChain and its capabilities.
-- [Docker Documentation](https://docs.docker.com/) - learn about Docker and Docker Compose.
+3. **Create a Service Account**:
+   - Go to the "IAM & Admin" section in the Google Cloud Console.
+   - Click on "Service Accounts" and then "Create Service Account".
+   - Provide a name and description for the service account.
 
-## Deploy on Vercel
+4. **Assign Permissions**:
+   - After creating the service account, click on it to open its details.
+   - Go to the "Permissions" tab and click "Add Member".
+   - Assign the role `Vertex AI User` (roles/aiplatform.user) to the service account.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+5. **Create and Download JSON Key**:
+   - In the service account details, go to the "Keys" tab.
+   - Click "Add Key" and select "JSON" to create and download the key file.
+   - Save this JSON file securely, as it contains sensitive information.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+6. **Embed the Credential in Your Application**:
+   - Place the JSON key file in a secure location within your project directory.
+   - Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to the path of the JSON key file. This can be done by adding the following line to your environment setup script or terminal session:
+     ```bash
+     export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/service-account-file.json"
+     ```
+
+By following these steps, you will have set up the necessary credentials to allow your application to interact with Google VertexAI securely.
