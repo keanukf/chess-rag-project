@@ -4,14 +4,14 @@ import logging
 import sqlalchemy
 import ast
 import re
+from langchain import hub
 from langchain_community.utilities import SQLDatabase
 from langchain_community.agent_toolkits import SQLDatabaseToolkit
 from langchain_google_vertexai import ChatVertexAI
 from langchain.agents.agent_toolkits import create_retriever_tool
 from langchain_community.vectorstores import FAISS
 from langchain_google_vertexai import VertexAIEmbeddings
-from langchain_core.messages import SystemMessage
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import SystemMessage, HumanMessage
 from langgraph.prebuilt import create_react_agent
 from sqlalchemy import inspect
 from google.cloud import aiplatform
@@ -43,7 +43,7 @@ engine = sqlalchemy.create_engine(f"sqlite:///{db_path}")
 # Create a SQLDatabase instance using sqlite database
 db = SQLDatabase(engine)
 
-llm = ChatVertexAI(model="gemini-1.5-flash")
+llm = ChatVertexAI(model="gemini-pro")
 
 toolkit = SQLDatabaseToolkit(db=db, llm=llm)
 

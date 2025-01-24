@@ -100,12 +100,17 @@ To start both the backend and frontend at once, use Docker Compose. Ensure you h
     cd backend
     ```
 
-2. Install the required dependencies:
+2. Create a new Conda environment using the `environment.yml` file:
     ```bash
-    pip install -r requirements.txt
+    conda env create -f environment.yml
     ```
 
-3. Run the backend server:
+3. Activate the Conda environment:
+    ```bash
+    conda activate <your-environment-name>
+    ```
+
+4. Run the backend server:
     ```bash
     python langchain_sql_agent.py
     ```
