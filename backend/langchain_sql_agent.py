@@ -43,7 +43,7 @@ engine = sqlalchemy.create_engine(f"sqlite:///{db_path}")
 # Create a SQLDatabase instance using sqlite database
 db = SQLDatabase(engine)
 
-llm = ChatVertexAI(model="gemini-pro")
+llm = ChatVertexAI(model="gemini-2.0-flash-001")
 
 toolkit = SQLDatabaseToolkit(db=db, llm=llm)
 
