@@ -59,9 +59,11 @@ time_classes = query_as_list(db, "SELECT time_class FROM super_gm_games_2024")
 rules = query_as_list(db, "SELECT rules FROM super_gm_games_2024")
 white_results = query_as_list(db, "SELECT white_result FROM super_gm_games_2024")
 white_realNames = query_as_list(db, "SELECT white_realName FROM super_gm_games_2024")
+black_results = query_as_list(db, "SELECT black_result FROM super_gm_games_2024")
+black_realNames = query_as_list(db, "SELECT black_realName FROM super_gm_games_2024")
 
 # Concatenate all lists
-all_texts = time_classes + rules + white_results + white_realNames
+all_texts = time_classes + rules + white_results + white_realNames + black_results + black_realNames
 
 # Filter out empty strings
 filtered_texts = [text for text in all_texts if text.strip()]
