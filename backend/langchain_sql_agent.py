@@ -43,7 +43,7 @@ engine = sqlalchemy.create_engine(f"sqlite:///{db_path}")
 # Create a SQLDatabase instance using sqlite database
 db = SQLDatabase(engine)
 
-llm = ChatVertexAI(model="gemini-2.0-flash-001")
+llm = ChatVertexAI(model="gemini-2.0-flash")
 
 toolkit = SQLDatabaseToolkit(db=db, llm=llm)
 
@@ -78,7 +78,7 @@ filtered_texts = list(set(filtered_texts))
 if not filtered_texts:
     raise ValueError("No valid text data available for embedding.")
 
-vector_db = FAISS.from_texts(filtered_texts, VertexAIEmbeddings(model_name="text-embedding-004"))
+vector_db = FAISS.from_texts(filtered_texts, VertexAIEmbeddings(model_name="text-embedding-005"))
 retriever = vector_db.as_retriever(search_kwargs={"k": 5})
 description = """Use to look up values to filter on. Input is an approximate spelling of the proper noun, output is \
 valid proper nouns. Use the noun most similar to the search."""
