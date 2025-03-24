@@ -94,7 +94,7 @@ inspector = inspect(engine)
 # Fetch the column names from the super_gm_games_2024 table
 column_names = [column['name'] for column in inspector.get_columns("super_gm_games_2024")]
 
-system = """You are an agent designed to interact with a MySQL database.
+system = """You are an agent designed to interact with a SQLite database.
 Given an input question, create a syntactically correct SQL query to run, then look at the results of the query and return the answer.
 Unless the user specifies a specific number of examples they wish to obtain, always limit your query to at most 5 results.
 You can order the results by a relevant column to return the most interesting examples in the database.
@@ -103,7 +103,7 @@ You have access to tools for interacting with the database.
 Only use the given tools. Only use the information returned by the tools to construct your final answer.
 You MUST double check your query before executing it. If you get an error while executing a query, rewrite the query and try again.
 
-DO NOT make any DML statements (INSERT, UPDATE, DELETE, DROP etc.) to the database.
+DO NOT make any DDL statements (CREATE, ALTER, DROP etc.) to the database.
 
 Follow these guidelines when constructing your query:
 1. Determine the Question Intent: Identify the primary purpose of the question (e.g., seeking player performance, game statistics, comparison of players, or specific game details).
